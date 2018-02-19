@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <iterator>
+// #include <iterator>
 
 #ifndef __BTREE__
 #define __BTREE__
@@ -9,49 +9,118 @@
 // class BTree;
 
 template<typename TK, typename TV>
-  class BTree{
+class BTree{
   struct BNode{
     std::pair<TK,TV> pair;
-    BNode* left;
-    BNode* right;
-    BNode* father;
+    std::unique_ptr<BNode> left;
+    std::unique_ptr<BNode> right;
+    BNode* next;
 		
 		
     // constructor for pair, only for root father is nullptr
-  BNode(std::pair<TK,TV> p): pair{p}, left{nullptr}, right{nullptr}, father{nullptr} {}
+  BNode(std::pair<TK,TV> p): pair{p}, left{nullptr}, right{nullptr}, next{nullptr} {}
     // constructor with father
-  BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, father{f} {}
+  BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, next{f} {}
     // constructor for 2 elements separated
     // BNode(TK key, TV val): pa{key,val}, left{nullptr}, right{nullptr} {}
+    
+  // BNode copy const
+  BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, next{b.next} {
+  	#ifdef DEBUG
+	std::cout << "BNode copy ctor" << std::endl;
+	#endif
+	if( b.left != nullptr )
+		left.reset( new BNode{ *b.left } );
+	if( b.right != nullptr )
+		right.reset( new BNode{ *b.right } );
+  }
+
 		
-    void insert_node( std::pair<TK,TV> p );
+  void insert_node( std::pair<TK,TV> p );
+  void clear_node();
 		
 		
   }; // BNode
 
 
   // root node
-  BNode* root;
-  void print(const BNode *n) const;
+    // root node
+  std::unique_ptr<BNode> root;
+  
+  // void print(std::unique_ptr<BNode> &n);
+  // void clear(std::unique_ptr<BNode> &n);
+  // void print(const BNode *n) const;
   void clear(BNode *n);
-  void diagram(BNode* n, int indent);
+  // void diagram(BNode* n, int indent);
   //int balance(BNode *n);
   //int isbalanced(BNode* n);
   //void build_tree(std::vector<BNode*> &nodes);
   
  public:
 		
+  // default constructor
+  BTree(): root{nullptr} {
+  #ifdef DEBUG
+  	std::cout << "BTree()" << std::endl;
+  #endif
+  }
+  
   // constructor for pair
- BTree(std::pair<TK,TV> p): root{new BNode{p} } {}
+ BTree(std::pair<TK,TV> p): root{new BNode{p} } {
+   #ifdef DEBUG
+  	std::cout << "BTree(std::pair<TK,TV>)" << std::endl;
+  #endif
+ 
+ }
+  
   //destructor
   ~BTree();
   // constructor for 2 elements separated
   // BTree(TK key, TV val): root{new BNode{key,val}} {}
+  
+  
+  // copy const
+  BTree(const BTree& t) /*: root { new BNode{ t.root->pair } } */ {
+  	#ifdef DEBUG
+  	std::cout << "BTree copy constructor: BTree(const BTree& t)" << std::endl;
+  	#endif
+  	root.reset(new BNode{ *t.root } );
+  }
+  
+  
+  //copy assignment
+  BTree& operator=(const BTree& t){
+  	#ifdef DEBUG
+  	std::cout << "BTree copy assignment: BTree& operator=(const BTree& t)" << std::endl;
+  	#endif
+  	root.reset(new BNode{ *t.root } );
+  	return *this;
+  }
+  
+  // move const
+  BTree(BTree&& t): root{std::move(t.root)} { 
+  	#ifdef DEBUG
+  	std::cout << "BTree move const: BTree(BTree&& t)" << std::endl;
+  	#endif 
+  }
+		
+  // move assignment
+  BTree& operator=(BTree&& t){ 
+  	#ifdef DEBUG
+  	std::cout << "BTree move assignment: BTree& operator=(BTree&& t)" << std::endl; 
+  	#endif
+  	root = std::move(t.root);
+  	return *this;
+  }
+	
+		
+		
+		
 		
   void insert( std::pair<TK,TV> p );
-  void print() const;
+  void print();
   void clear();
-  void diagram();
+  // void diagram();
   //void balance();
   //bool isbalanced();
   //void erase(int key);
@@ -60,13 +129,20 @@ template<typename TK, typename TV>
   class Iterator;
 		
   Iterator begin(){
-    BNode *pt = root;
+  	if( root == nullptr )
+  		return Iterator{nullptr};
+    BNode *pt = root.get();
+    // leftmost()
     while( pt->left != nullptr )
       pt = pt->left.get();	
     return Iterator{pt};
   }	
-  Iterator end(){	return Iterator{nullptr}; }
+  
+  Iterator end(){ return Iterator{nullptr}; }
 
+ // Iterator find(TK k);
+
+  /*
   class ConstIterator;
   ConstIterator begin() const {
     BNode *pt = root;
@@ -83,55 +159,44 @@ template<typename TK, typename TV>
     return Iterator{pt};
   }	
   ConstIterator cend() const {	return Iterator{nullptr}; }
+  */
+  
 }; // BTree
 
 
 // Iterator
 template <typename TK, typename TV>
-  //class BTree<TK,TV>::Iterator {
-  class BTree<TK,TV>::Iterator: public std::iterator<std::bidirectional_iterator_tag, TK, TV>{
+class BTree<TK,TV>::Iterator {
+
     using BNode = BTree<TK,TV>::BNode;
     BNode* current;
 
  public:
- Iterator(BNode* n) : current{n} {}
-  TK& operator*() const { return current->pair.first; }
+   
+   Iterator(BNode* n) : current{n} {}
+   std::pair<TK,TV>& operator*() { return current->pair; }
 
   // ++it
   Iterator& operator++() {
-    BNode *f, *ff;
-    if( current->right != nullptr ){
-      //std::cout << "[++] curr->right != nullptr" << std::endl;
-      f = current->right;
-      while( f->left != nullptr)
-	f = f->left;
-      current = f;
-      return *this;
-    }
-			
-    // else (current->right == nullptr)
-			
-    f = current;
-    ff = current->father;
-    if( ff == nullptr ){   // f = root no right branch
-      current = ff;
-      return *this;
-    } 
-    if( ff->left != nullptr && ff->left->pair.first == f->pair.first ){ // ff = right father
-      current = ff;
-      return *this;
-    }
-    if( ff->right->pair.first == f->pair.first ){ // ff = left father
-      while(  ff != nullptr &&  ff->right->pair.first == f->pair.first   ){
-	f = ff;
-	ff = f->father;
-      }
-      std::cout << "exit from while" << std::endl;
-      current = ff;
-      return *this;
-    }
-			
-  }
+  	if( current->right != nullptr ){
+  		BNode *p;
+  		p = current->right.get();
+  		while( p->left != nullptr )
+  			p = p->left.get();
+  		current = p;
+  		// return *this;
+  	}
+  	else{
+  		if( current->next != nullptr){
+  		    current = current->next; 
+  		}
+  		else{
+  			current = nullptr;
+  		}
+  	}
+  
+  	return *this;
+  }		
 
   /*
   // it++
@@ -149,8 +214,9 @@ template <typename TK, typename TV>
   bool operator!=(const Iterator& other) { return !(*this == other); }
 		
   bool is_nullptr() { return current == nullptr; }
-};
+}; // Iterator
 
+/*
 template <typename TK, typename TV>
 struct comparison {
   bool operator()(const TK& a, const TK& b) { return a < b; }
@@ -163,6 +229,7 @@ template <typename TK, typename TV>
  public:
   using parent::Iterator;
   const TK& operator*() const { return parent::operator*(); }
+  
 };
-
+*/
 #endif // __BTREE__
