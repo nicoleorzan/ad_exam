@@ -1,33 +1,37 @@
 #include <btree.h>
 #include <memory>
 #include <iostream>
-// #include <iterator>
-#include <iomanip>
+#include <iterator>
+#include <iomanip> //indentation
 #include <math.h>
 #include <vector> 
 
 
-template<typename TK, typename TV>
-void BTree<TK,TV>::insert( std::pair<TK,TV> p ){ 
-  if( root == nullptr)
-  	root.reset(new BNode{p});
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){ 
+  if( root == nullptr){
+    // invalid.reset(new Invalid_BNode{p});
+    root.reset(new BNode{p});
+    //std::cout << "invalid node setting " << invalid->pair.first <<std::endl;
+  }
   else
-  	this->root->insert_node(p); 
+    this->root->insert_node(p); 
 }
 
 // insert node
-template<typename TK, typename TV>
-void BTree<TK,TV>::BNode::insert_node(std::pair<TK,TV> p){
-  // BNode *tmproot = this->root_node.get();
-
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
   // key is already present
-  if( this->pair.first == p.first ){
+  if (!comparison(this->pair.first, p.first) && !comparison(p.first,this->pair.first) ){
+    // if( this->pair.first == p.first ){
     this->pair.second = p.second;
-    std::cout << "already present" << std::endl;
-    }
-  else if( this->pair.first > p.first ){
+    // std::cout << "already present" << std::endl;
+  }
+  else if (comparison(p.first,this->pair.first) ){
+    //else if( this->pair.first > p.first ){
     if( this->left == nullptr ){
       this->left.reset(new BNode{p, this});
+      //this->left->next = this; //parent setting
       return;
     }
     else
@@ -36,6 +40,7 @@ void BTree<TK,TV>::BNode::insert_node(std::pair<TK,TV> p){
   else{
     if( this->right == nullptr ){
       this->right.reset(new BNode{p, this->next});
+      //this->right->next = this; //parent setting
       return;
     }
     else
@@ -46,54 +51,18 @@ void BTree<TK,TV>::BNode::insert_node(std::pair<TK,TV> p){
 
 
 // BTree::print
-template<typename TK, typename TV>
-void BTree<TK,TV>::print() {
-  using Iterator = BTree<TK,TV>::Iterator;
-  Iterator it = this->begin(), end = this->end();
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::print() {
+  using ConstIterator = BTree<TK,TV,Tcomp>::ConstIterator;
+  ConstIterator it = this->cbegin(), end = this->cend();
   // std::cout << "print" << std::endl;
   for( ; it != end; ++it )
   	std::cout << (*it).first << " " << (*it).second << std::endl; 
 }
 
-
-
-
-/*
-template<typename TK, typename TV>
-void BTree<TK,TV>::print() const{
-  print(root);  
-}
-
-
-
-template<typename TK, typename TV>
-void BTree<TK,TV>::print(const BNode *n) const{
-  //inorder printing of the tree
-
-  if(n != nullptr){
-    print(n->left);
-    std::cout<<"key: "<< n->pair.first << ", value: "<< n->pair.second <<"\n";
-    print(n->right);
-  }
-}
-
-//deleting the tree
-template<typename TK, typename TV>
-void BTree<TK,TV>::clear(){
-  if (root==nullptr)
-    std::cout<<"Tree is empty"<<"\n";
-  
-  clear(root);
-  root.reset(nullptr);
-}
-
-
-*/
-
-
 // BTree::clear()
-template<typename TK, typename TV>
-void BTree<TK,TV>::clear(){
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::clear(){
   if (root==nullptr){
   	#ifdef DEBUG
         std::cout<<"BTree::clear() : Tree is empty"<<"\n";
@@ -106,8 +75,8 @@ void BTree<TK,TV>::clear(){
 
 
 // BNode::clear_node()
-template <typename TK, typename TV>
-void BTree<TK,TV>::BNode::clear_node(){
+template <class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::clear_node(){
 
 	if( this->left != nullptr ){
 		this->left->clear_node();
@@ -120,21 +89,9 @@ void BTree<TK,TV>::BNode::clear_node(){
 	this->right.reset(nullptr);
 }
 
-
-/*
-template<typename TK, typename TV>
-void BTree<TK,TV>::clear(BNode *n){
-  if(n != nullptr){
-    clear(n->left);
-    clear(n->right);  
-    delete n;
-    n = nullptr;
-  }
-}*/
-
 // ~BTree()
-template<typename TK, typename TV>
-BTree<TK,TV>::~BTree(){
+template<class TK, class TV, class Tcomp>
+BTree<TK,TV,Tcomp>::~BTree(){
 	#ifdef DEBUG
 	std::cout << "~BTree()" << std::endl;
 	#endif
@@ -143,138 +100,172 @@ BTree<TK,TV>::~BTree(){
 
 
 
+//BALANCE FUNCTIONS
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::balance(){
+#ifdef DEBUG
+  std::cout << "BTree()::balance()" << std::endl;
+#endif
+  std::vector<std::pair<TK,TV>> vec;
 
-// explicit template
-template class BTree<int,int>;
+  using Iterator = BTree<TK,TV,Tcomp>::Iterator;
+  Iterator it = this->begin(), end = this->end();
+  for( ; it != end; ++it ){
+    vec.push_back(*it);
+    // std::cout<< "blancing " <<(*it).first <<std::endl;
+  }
+  
+  clear();
+  
+  int size = vec.size();
 
-
-/*
-template<typename TK, typename TV>
-void BTree<TK,TV>::diagram(){
-  diagram(root, 6);  
+  built_tree(vec,0,size-1);
 }
 
-template<typename TK, typename TV>
-void BTree<TK,TV>::diagram(BNode* p, int indent){
-  if(p != nullptr) {
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int start, int end){
+  if (start>end) return;
+  int half = (start+end)/2;
+  // std::cout<<"start "<<start<<", end "<<end<<", half "<<half<<std::endl;
+  
+  std::pair<TK,TV> p= vec[half];
+  
+  insert(p);
+  
+  built_tree(vec, start, half-1);
+  built_tree(vec, half+1, end);
+  //n->right->built_tree(vec, half+1, end);
+
+}
+
+
+
+template<class TK, class TV, class Tcomp>
+bool BTree<TK,TV,Tcomp>::isbalanced(){
+  if (root!=nullptr){
+#ifdef DEBUG
+    std::cout << "isbalanced: root!= nullptr" << std::endl;
+#endif
+    return (this->root->isbalanced_node());
+  }
+  else {
+    std::cout<<"blanced tree"<<std::endl;
+    return 0;
+  }
+}
+
+template<class TK, class TV, class Tcomp>
+int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
+
+  if (this != nullptr){
+    if (this->left != nullptr && this->right != nullptr){
+      int diff = this->left->isbalanced_node() - this->right->isbalanced_node() ;
+#ifdef DEBUG
+      std::cout<<"diff "<<diff<<std::endl;
+#endif
+      return diff;
+    }
+
+    if ( (this->left==nullptr && this->right!=nullptr) || (this->left!=nullptr && this->right==nullptr)) {
+#ifdef DEBUG
+      std::cout<<"unblanced tree"<<std::endl;
+#endif
+      return 1;
+    }
+    else if (this->left==nullptr && this->right==nullptr) {
+#ifdef DEBUG
+      std::cout<<"blanced tree"<<std::endl;
+#endif
+      return 0;
+    }
+  }
+#ifdef DEBUG
+  std::cout<<"blanced tree"<<std::endl;
+#endif
+  return 0;
+ 
+}
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::erase(TK key){
+ if (root!=nullptr)
+   this->root->find_node(key);
+}
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::find_node(TK key){
+  if (this!=nullptr){
+    //if (this->pair.first==key) this->erase_node();
+    if ( !comparison(this->pair.first, key) && !comparison(key,this->pair.first)  )  this->erase_node();
+    //else if (this->pair.first>key) this->left->find_node(key);
+    else if (comparison(key,this->pair.first) ) this->left->find_node(key);
+    else this->right->find_node(key);
+  }
+  return;
+}
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::erase_node(){
+
+    //node has no childs
+   if (this->left==nullptr && this->right == nullptr){
+    std::cout<<"no childs"<<std::endl;
+    //if(this->next!=nullptr)
+    //std::cout<<"printing next "<<this->next->pair.first<<" "<<this->next->pair.second<<std::endl;
+    }
+   
+   //node has only left child
+   if (this->left!= nullptr && this->right==nullptr){
+     this->pair.first=this->left->pair.first;
+     this->pair.second=this->left->pair.second;
+      if (this->left->left==nullptr && this->left->right==nullptr) this->left.reset(nullptr);
+      else this->left->erase_node();
+    }
+    //node has only right child
+    if (this->left== nullptr && this->right!=nullptr){
+      this->pair.first=this->right->pair.first;
+      this->pair.second=this->right->pair.second;
+      this->right->erase_node();
+      if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
+      else this->right->erase_node();
+    }
+    //node has both childs
+    if (this->left!= nullptr && this->right!=nullptr){
+      this->pair.first=this->right->pair.first;
+      this->pair.second=this->right->pair.second;
+      //std::cout<<"here "<<this->pair.first<<" "<<this->pair.second<<std::endl;
+      if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
+      else this->right->erase_node();
+      // this->right->erase_node();
+    }
+
+  return;
+
+}
+
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::diagram(){
+  if (root!=nullptr)
+  this->root->diagram(20);  
+}
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
+   if(this != nullptr) {
     if (indent) {
       std::cout << std::setw(indent) << ' ';
-      std::cout<< p->pair.first<<std::endl;
+      std::cout<< this->pair.first<<std::endl;
     }
-    // if (p->left && p->right){
-    //  diagram(p->left, indent - 2);
-    //  diagram(p->right, indent + 2);
-    //  }
-    if (p->left) {
-      diagram(p->left, indent - 2);
+    if (this->left) {
+      this->left->diagram(indent - 2);
     }
-    if (p->right) {
-      diagram(p->right, indent + 2);
+    if (this->right) {
+      this->right->diagram(indent + 2);
     }
-  }
+   }
 }
 
 
-template<typename TK, typename TV>
-class BTree<TK,TV>::Iterator BTree<TK,TV>::find(TK k){
-Iterator it = this->begin();
-
-while( *it.first < k )
-	++it;
-
-if(*it.first == k )
-	return it;
-else
-	return Iterator{nullptr};
-
-
-// std::cout << "inside" << std::endl;
-BNode *p = root;
-if( p == nullptr )
-	return Iterator{nullptr};
-while(1){
-	
-	if(p->pair.first == k)
-		return Iterator{p};
-	if(p->pair.first > k){
-		if( p->left != nullptr){
-			p = p->left;
-			std::cout << "left" << std::endl;
-		}
-		else
-			return Iterator{nullptr};
-	}
-	else{
-		if( p->right != nullptr){
-			p = p->right;
-			std::cout << "right" << std::endl;
-		}
-		else
-			return Iterator{nullptr};
-	
-	}
-}
-}
-*/
-
-// BNode copy const
-/*
-template<typename TK, typename TV>
-BTree<TK,TV>::BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, father{nullptr} {
-	std::cout << "BNode copy ctor\n" << std::endl;
-}
-
-// copy const
-template<typename TK, typename TV>
-BTree<TK,TV>::BTree(const BTree& t){
-	std::cout << "BTree copy ctor" << std::endl;
-	root = new BNode{*(t.root)};
-
-}
-
-
-// copy assignment
-template<typename TK, typename TV>
-BTree<TK,TV>& BTree<TK,TV>::operator=(const BTree& t){
-	std::cout << "BTree copy assignment" << std::endl;
-
-}
-*/
-
-
-
-
-
-
-
-
-
-/*
-template<typename TK, typename TV>
-bool BTree<TK,TV>::isbalanced(){
-  if ( isbalanced(root) == -1 ){
-    std::cout<<"no"<<std::endl;
-    return false;
-  } else {
-    std::cout<<"yes"<<std::endl;
-    return true;
-  }
-}
-
-template<typename TK, typename TV>
-int BTree<TK,TV>::isbalanced(BNode *n){
-  if (n == NULL) return 0;
-  
-  if(isbalanced(n->left) == -1) return -1; 
-  if(isbalanced(n->right) == -1) return -1; 
-
-  int diff = isbalanced(n->left) - isbalanced(n->right);
-
-  if(abs(diff) > 1) return -1;
-  else return  std::max(isbalanced(n->left),isbalanced(n->right)) + 1;
-}
-*/
-//template<typename TK, typename TV>
-//bool BTree<TK,TV>::find(){
-
-
+// explicit template
+template class BTree<int,int, std::less<int>>;
