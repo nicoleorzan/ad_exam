@@ -1,4 +1,4 @@
-EXE=main
+EXE=main_int
 CXX=c++
 CFLAGS=-g -std=c++11 -Wall -Wextra
 IFLAGS=-I include
@@ -7,7 +7,7 @@ SRC= src/btree.cc
 
 all: $(EXE)
 
-main:main.o src/btree.o
+main_int:main_int.o src/btree.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
 
 doc: Doxy
@@ -16,7 +16,7 @@ doc: Doxy
 src/btree.o:  $(SRC) 
 	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
 
-main.o:main.cc
+main_int.o:main_int.cc
 	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
 
 clean:

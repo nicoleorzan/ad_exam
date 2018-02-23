@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <iterator>
+// #include <iterator>
 
 #ifndef __BTREE__
 #define __BTREE__
@@ -183,11 +183,14 @@ template<class TK, class TV, class Tcomp>
 
   Iterator find(TK k){
     //TO FIX RETURN --> MUST BE end()
-    if( root == nullptr ) return end();
-    std::cout<<"iterator find"<<std::endl;
+    if( root == nullptr ) 
+    	return Iterator{nullptr};
+    	
+    // std::cout<<"iterator find"<<std::endl;
     BNode *pt = root.get();
-    while (pt->pair.first!=k){
-      if( pt->pair.first < k){
+    
+    while ( comparison(pt->pair.first, k) || comparison(pt->pair.first, k) ){
+      if( comparison( pt->pair.first, k ) ){
 	if (pt->right != nullptr) {
 	  //std::cout<<"key val "<<pt->pair.first<<std::endl;
 	  pt = pt->right.get();
@@ -207,6 +210,7 @@ template<class TK, class TV, class Tcomp>
   
   class ConstIterator;
   
+  /*
   ConstIterator begin() const {
     if( root == nullptr )
     return ConstIterator{nullptr};
@@ -215,7 +219,7 @@ template<class TK, class TV, class Tcomp>
       pt = pt->left.get();	
     return ConstIterator{pt};
   }	
-  ConstIterator end() const {return ConstIterator{nullptr}; }
+  ConstIterator end() const {return ConstIterator{nullptr}; } */
 
   ConstIterator cbegin() const {
     if( root == nullptr )
@@ -233,7 +237,7 @@ template<class TK, class TV, class Tcomp>
 
 // Iterator
 template <class TK, class TV, class Tcomp>
-  class BTree<TK,TV,Tcomp>::Iterator: public std::iterator<std::forward_iterator_tag, TK,TV,Tcomp>  {
+  class BTree<TK,TV,Tcomp>::Iterator/*: public std::iterator<std::forward_iterator_tag, TK,TV,Tcomp> */ {
 
   using BNode = BTree<TK,TV,Tcomp>::BNode;
     BNode* current;
@@ -265,14 +269,14 @@ template <class TK, class TV, class Tcomp>
   	return *this;
   }		
 
-  /*
+  
   // it++
   Iterator operator++(int) {
-  Iterator it{current};
-  ++(*this);
-  return it;
+  	Iterator it{current};
+  	++(*this);
+  	return it;
   }
-  */
+  
 		
   bool operator==(const Iterator& other) {
     return this->current == other.current;

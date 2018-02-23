@@ -19,16 +19,33 @@ double cclock(){
 
 
 void random_fill(BTree<int,int,std::less<int>>& t, int size){
-  int r, i;
-  std::pair<int,int> p;
+int r, i;
+unsigned int j;
+std::pair<int,int> p;
+std::vector<std::pair<int,int>> v;
 	
+  t.clear();
+
   for(i=0; i<size; i++){
     r = rand() % (size*100);
     p = {r, r};
-    t.insert(p); 
-  }
+    for( j=0; j<v.size(); j++){
+	if( p == v[j] )
+		break;
+    }
+	if( j == v.size() )
+		v.push_back(p);
+   }
 
-}
+
+std::cout << "v has size " << v.size() << std::endl;
+for( j=0; j<v.size(); j++)
+	t.insert( v[j] );
+	
+std::cout << "t" << std::endl;
+t.print();
+
+} // random_fill
 
 
 void balance_test(){
@@ -90,8 +107,16 @@ void balance_test(){
     std::cout << "t.diagram()" << std::endl;
     t.diagram();
     std::cout << "t.clear()" << std::endl;
-    t.clear();
-
+  
+  BTree<int,int,std::less<int>>::Iterator it = t.begin(), end = t.end();
+    std::cout << "t.find(100)" << std::endl;
+    it = t.find(100);
+    if( it == end )
+    	std::cout << "it == end" << std::endl;
+    
+    std::cout << "t.diagram()" << std::endl;
+    t.diagram();
+	t.clear();
 }
 
 void constructor_test(){
@@ -307,6 +332,12 @@ int main(){
 
   t_end = cclock();
   std::cout<<"time: "<<t_end - t_start<<std::endl;
+  
+  std::pair<int,int> p{2,2};
+  BTree<int,int,std::less<int>> t1{p};
+  t1.print();
+  
+  random_fill(t1, 15);
    
   return 0;
 }
