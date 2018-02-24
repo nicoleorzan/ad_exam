@@ -206,7 +206,8 @@ template<class TK, class TV, class Tcomp>
       }
     }
     return Iterator{pt};
-  }
+    
+  } // find
   
   class ConstIterator;
   
