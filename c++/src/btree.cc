@@ -187,16 +187,18 @@ int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
 
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::erase(TK key){
- if (root!=nullptr)
-   this->root->find_node(key);
+  if (root!=nullptr)
+     this->root->find_node(key);
 }
 
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::find_node(TK key){
   if (this!=nullptr){
-    //if (this->pair.first==key) this->erase_node();
+    // if (this->left->pair.first==key) this->erase_node(0);
+    //else if (this->right->pair.first==key) this->erase_node(1);
     if ( !comparison(this->pair.first, key) && !comparison(key,this->pair.first)  )  this->erase_node();
     //else if (this->pair.first>key) this->left->find_node(key);
+    //else this->right->find_node(key);
     else if (comparison(key,this->pair.first) ) this->left->find_node(key);
     else this->right->find_node(key);
   }
@@ -206,6 +208,18 @@ void BTree<TK,TV,Tcomp>::BNode::find_node(TK key){
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::erase_node(){
 
+  /* if (b==0){
+    if (this->left->left==nullptr && this->left->right==nullptr) this->left.reset(nullptr);
+    if (this->left->left!=nullptr) this->left.reset(this->left->left);
+    if (this->left->right!=nullptr) this->right.reset(this->left->right);
+  }
+  else if (b==1){
+    if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
+    if (this->right->left!=nullptr) this->left.reset(this->right->left);
+    if (this->right->right!=nullptr) this->right.reset(this->right->right);
+    }*/
+    //this->left.reset(nullptr);
+  
     //node has no childs
    if (this->left==nullptr && this->right == nullptr){
     std::cout<<"no childs"<<std::endl;
@@ -236,7 +250,7 @@ void BTree<TK,TV,Tcomp>::BNode::erase_node(){
       if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
       else this->right->erase_node();
       // this->right->erase_node();
-    }
+      }
 
   return;
 
