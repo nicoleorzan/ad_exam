@@ -1,7 +1,6 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-// #include <iterator>
 
 #ifndef __BTREE__
 #define __BTREE__
@@ -16,9 +15,6 @@
 template<class TK, class TV, class Tcomp>
   class BTree{
 
-  // class Invalid_BNode;
-
-
   //!\class BNode
   /** 
    *The Members of the tree are created as classes. Each Node has a pair kay-value, two unique pointers 
@@ -29,19 +25,20 @@ template<class TK, class TV, class Tcomp>
 
   public:
 
+    /**custom comparison operator*/
     Tcomp comparison;
-    
+    /** key-value pair*/
     std::pair<TK,TV> pair;
+    /** left child as unique_ptr */
     std::unique_ptr<BNode> left;
+    /** right child as unique_ptr */
     std::unique_ptr<BNode> right;
-    //Invalid_BNode* invalid_parent;
+    /** parent node */
     BNode* next;
 			
-    // constructor for pair, only for root father is nullptr
+   /** BNode constructor for pair key-value, only for root father is nullptr */
   BNode(std::pair<TK,TV> p): pair{p}, left{nullptr}, right{nullptr}, next{nullptr} {}
-    // constructor for root (with invalid node as father)
-    // BNode(std::pair<TK,TV> p, Invalid_BNode* inv): pair{p}, left{nullptr}, right{nullptr}, invalid_parent{inv} {}
-    // constructor with father
+   /** BNode constructor with father node */
   BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, next{f} {}
     // constructor for 2 elements separated
     // BNode(TK key, TV val): pa{key,val}, left{nullptr}, right{nullptr} {}
@@ -57,60 +54,60 @@ template<class TK, class TV, class Tcomp>
 		right.reset( new BNode{ *b.right } );
   }
 
-		
-  void insert_node( std::pair<TK,TV> p );
-  void clear_node();
-  int isbalanced_node();
-  void diagram(int indent);
-  void erase_node();
-  void find_node(TK key);
+    /**
+     * Bnode function for inserting a new Node
+     */		
+    void insert_node( std::pair<TK,TV> p );
+    /**
+     * Bnode utility function to clean the tree
+     */
+    void clear_node();
+    /**
+     * Bnode utility function to check if the tree is balanced
+     */
+    int isbalanced_node();
+    void diagram(int indent);
+    /**
+     * Bnode function to erase a Node
+     */
+    void erase_node();
+    /**
+     * Bnode utility function to erase a Node
+     */
+    void find_node(TK key);
 		
   }; // BNode
 
-  /* class Invalid_BNode{
-    
-  public:
-    std::pair<TK,TV> p;
-    BNode* child_root;
-    // std::unique_ptr<BNode> child_root{};
-    
-  Invalid_BNode(std::unique_ptr<BNode> node): p{-7777,-7777},  child_root{node.get()} {}
-    //Invalid_BNode(std::pair<TK,TV> rootpair): p{-7777,-7777},  child_root{new BNode{rootpair}} {}
-    
-    };*/
-
-  // std::unique_ptr<Invalid_BNode> invalid;
+/**root node of the tree as unique_ptr */
   std::unique_ptr<BNode> root;
-  //std::unique_ptr<Invalid_BNode> invalid;
-  
+
+  /** BTree private function to clear the tree    */
   void clear(BNode *n);
+   /** BTree private function to built the tree using a given vector of pairs  */
   void built_tree(std::vector<std::pair<TK,TV>> &vec, int start, int end);
 
   
  public:
 
+  /**custom comparison operator */
   Tcomp comparison;
   
-  // default constructor
- BTree() {
-  #ifdef DEBUG
-  	std::cout << "BTree()" << std::endl;
-  #endif
+  /** BTree default constructor */
+  BTree() {
+#ifdef DEBUG
+    std::cout << "BTree()" << std::endl;
+#endif
   }
   
-  // constructor for pair, with comparison operator
+  /** BTree constructor with pair key-value, with comparison operator */
  BTree(std::pair<TK,TV> p, Tcomp c=Tcomp{}): root{new BNode{p}}, comparison{c} {
-   #ifdef DEBUG
-  	std::cout << "BTree(std::pair<TK,TV>)" << std::endl;
-  #endif
-	//invalid=new Invalid_BNode{root};
+#ifdef DEBUG
+    std::cout << "BTree(std::pair<TK,TV>)" << std::endl;
+#endif
   }
   
-  //destructor
-  ~BTree();
-  // constructor for 2 elements separated
-  // BTree(TK key, TV val): root{new BNode{key,val}} {}
-  
+  /** BTree destructor */
+  ~BTree();  
   
   // copy const
   BTree(const BTree& t) /*: root { new BNode{ t.root->pair } } */ {
@@ -146,13 +143,19 @@ template<class TK, class TV, class Tcomp>
   	return *this;
   }
 		
-		
+  /**  BTree function for inserting a new Node */
   void insert( std::pair<TK,TV> p );
+  /** BTree function to print the tree using the Constiterator  */
   void print();
+  /** BTree function to clear the tree  */
   void clear();
+  /** BTree function to create a kind of diagram --not working well */
   void diagram();
+  /** BTree function to balance the tree  */
   void balance();
+  /** BTree function to check if the tree is balanced  */
   bool isbalanced();
+  /** BTree function to erase a Node with the given key  */
   void erase(TK key);
 
   struct comparison {
@@ -160,51 +163,52 @@ template<class TK, class TV, class Tcomp>
   };
   
   class Iterator;
-		
+
+  /** Iterator begin function, which returns the smallest key value   */
   Iterator begin(){
     if( root == nullptr )
-    return Iterator{nullptr};
+      return Iterator{nullptr};
     BNode *pt = root.get();
-    std::cout<<"before leftmost"<<std::endl;
     return (leftmost(pt));
-    /*BNode *pt = root.get();
-      while( pt->left != nullptr )
-      pt = pt->left.get();	
-      return Iterator{pt};*/
   }	
-  
+  /** Iterator end function  */
   Iterator end() { return Iterator{nullptr}; }
-
+  
+  /** 
+   * Iterator leftmost function, which returns an iterator to the 
+   * leftmost node with respect to the given one
+   */
   Iterator leftmost(BNode *b){
-    std::cout<<"inside leftmost"<<std::endl;
     while ( b->left != nullptr) b = b->left.get();
     return Iterator{b};
   }
-
+  
+  /**
+   * Iterator find function, which returns an iterator to the 
+   * node with the given key. If the node is not found returns end function.
+   */
   Iterator find(TK k){
-    //TO FIX RETURN --> MUST BE end()
     if( root == nullptr ) 
-    	return Iterator{nullptr};
+      return Iterator{nullptr};
     	
-    // std::cout<<"iterator find"<<std::endl;
     BNode *pt = root.get();
     
-    while ( comparison(pt->pair.first, k) || comparison(pt->pair.first, k) ){
+    while ( comparison(pt->pair.first, k) || comparison(k, pt->pair.first) ){
       if( comparison( pt->pair.first, k ) ){
 	if (pt->right != nullptr) {
-	  //std::cout<<"key val "<<pt->pair.first<<std::endl;
 	  pt = pt->right.get();
 	}
 	else return Iterator{nullptr};
       }
       else {
 	if (pt->left!= nullptr) {
-	  //std::cout<<"key val "<<pt->pair.first<<std::endl;
 	  pt = pt->left.get();
 	}
 	else return Iterator{nullptr};
       }
     }
+    //std::cout<<"found"<<std::endl;
+    //std::cout<<"key val "<<pt->pair.first<<std::endl;
     return Iterator{pt};
     
   } // find
@@ -218,18 +222,20 @@ template<class TK, class TV, class Tcomp>
     BNode *pt = root.get();
     while( pt->left != nullptr )
       pt = pt->left.get();	
-    return ConstIterator{pt};
-  }	
-  ConstIterator end() const {return ConstIterator{nullptr}; } */
+      return ConstIterator{pt};
+      }	
+      ConstIterator end() const {return ConstIterator{nullptr}; } */
 
+  /** ConstIterator cbegin function, which returns the smallest key value */
   ConstIterator cbegin() const {
     if( root == nullptr )
-    return ConstIterator{nullptr};
+      return ConstIterator{nullptr};
     BNode *pt = root.get();
     while( pt->left != nullptr )
       pt = pt->left.get();	
     return ConstIterator{pt};
-  }	
+  }
+  /** ConstIterator cend function   */
   ConstIterator cend() const {	return ConstIterator{nullptr}; }
   
   
@@ -241,61 +247,61 @@ template <class TK, class TV, class Tcomp>
   class BTree<TK,TV,Tcomp>::Iterator/*: public std::iterator<std::forward_iterator_tag, TK,TV,Tcomp> */ {
 
   using BNode = BTree<TK,TV,Tcomp>::BNode;
-    BNode* current;
+  BNode* current;
 
  public:
    
-   Iterator(BNode* n) : current{n} {}
-   std::pair<TK,TV>& operator*() const { return current->pair; }
+ Iterator(BNode* n) : current{n} {}
+    std::pair<TK,TV>& operator*() const { return current->pair; }
 
-  // ++it
-  Iterator& operator++() {
-  	if( current->right != nullptr ){
-  		BNode *p;
-  		p = current->right.get();
-  		while( p->left != nullptr )
-  			p = p->left.get();
-  		current = p;
-  		// return *this;
-  	}
-  	else{
-  		if( current->next != nullptr){
-  		    current = current->next; 
-  		}
-  		else{
-  			current = nullptr;
-  		}
-  	}
+    // ++it
+    Iterator& operator++() {
+      if( current->right != nullptr ){
+	BNode *p;
+	p = current->right.get();
+	while( p->left != nullptr )
+	  p = p->left.get();
+	current = p;
+	// return *this;
+      }
+      else{
+	if( current->next != nullptr){
+	  current = current->next; 
+	}
+	else{
+	  current = nullptr;
+	}
+      }
   
-  	return *this;
-  }		
+      return *this;
+    }		
 
   
   // it++
-  Iterator operator++(int) {
-  	Iterator it{current};
-  	++(*this);
-  	return it;
-  }
+    Iterator operator++(int) {
+      Iterator it{current};
+      ++(*this);
+      return it;
+    }
   
+    /** boolean operator to check equality of nodes*/
+    bool operator==(const Iterator& other) {
+      return this->current == other.current;
+    }
+    /** boolean operator to check if two nodes are different*/
+    bool operator!=(const Iterator& other) { return !(*this == other); }
 		
-  bool operator==(const Iterator& other) {
-    return this->current == other.current;
-  }
-		
-  bool operator!=(const Iterator& other) { return !(*this == other); }
-		
-  bool is_nullptr() { return current == nullptr; }
+    bool is_nullptr() { return current == nullptr; }
 }; // Iterator
 
 //const iterator
 template<class TK, class TV, class Tcomp>
   class BTree<TK,TV,Tcomp>::ConstIterator: public BTree<TK,TV,Tcomp>::Iterator  {
-  using parent = BTree<TK,TV,Tcomp>::Iterator;
+    using parent = BTree<TK,TV,Tcomp>::Iterator;
 
  public:
-  using parent::Iterator;
-  const std::pair<TK,TV>& operator*() const { return parent::operator*(); }
+    using parent::Iterator;
+    const std::pair<TK,TV>& operator*() const { return parent::operator*(); }
 };
 
 #endif // __BTREE__

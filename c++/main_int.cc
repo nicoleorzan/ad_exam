@@ -56,21 +56,25 @@ void balance_test(){
 
    std::pair<int,int> p{1,1};
   std::cout << "BTree<int,int> t{p};" << std::endl;
-  BTree<int,int,std::less<int>> t{p};
+  BTree<int,int,std::less<int>> t;//{p};
   std::cout << "t.print()" << std::endl;
   t.print();
 
-  std::vector<int> v{87,7,6,5,11,25,4,3,2,1,15,2,18,33,17};
+  std::vector<int> v{20,10,30,5,15,25,35,3,8,12,17,22,27,32,39,1,4};
     for(unsigned int j=0; j< v.size(); j++){
       p = {v[j], v[j]};
       t.insert(p);
     }
-    std::cout << "inserted  v{87,7,6,5,11,25,4,3,2,1,15,2,18,33,17}" << std::endl;
-    std::cout << "t.print()" << std::endl;
-    t.print();
-    std::cout << "t.find(87)" << std::endl;
-    t.find(87);
-    std::cout << "t.isbalanced()" << std::endl;
+    std::cout << "inserted  v{20,10,30,5,15,25,35,3,8,12,17,22,27,32,39,1,4}" << std::endl;
+    // std::cout << "t.print()" << std::endl;
+    //t.print();
+    std::cout << "t.diagram()" << std::endl;
+    t.diagram();
+    std::cout << "t.erase(25)" << std::endl;
+    t.erase(25);
+    std::cout << "t.diagram()" << std::endl;
+    t.diagram();
+    /*std::cout << "t.isbalanced()" << std::endl;
     t.isbalanced();
     t.diagram();
     std::cout << "t.balance()" << std::endl;
@@ -83,7 +87,7 @@ void balance_test(){
     t.diagram();
     std::cout << "t.clear()" << std::endl;
     t.clear();
-
+    
     std::vector<int> v1{2,17,11,25,4,33,3,2,1,15,87,7,6,5,18};
     for(unsigned int j=0; j< v1.size(); j++){
       p = {v1[j], v1[j]};
@@ -102,8 +106,8 @@ void balance_test(){
     t.balance();
     std::cout << "t.isbalanced()" << std::endl;
     t.isbalanced();
-    std::cout << "t.find(7)" << std::endl;
-    t.find(7);
+    std::cout << "t.erase(7)" << std::endl;
+    t.erase(7);
     std::cout << "t.diagram()" << std::endl;
     t.diagram();
     std::cout << "t.clear()" << std::endl;
@@ -116,7 +120,7 @@ void balance_test(){
     
     std::cout << "t.diagram()" << std::endl;
     t.diagram();
-	t.clear();
+    t.clear();*/
 }
 
 void constructor_test(){
@@ -333,11 +337,11 @@ int main(){
   t_end = cclock();
   std::cout<<"time: "<<t_end - t_start<<std::endl;
   
-  std::pair<int,int> p{2,2};
+  /* std::pair<int,int> p{2,2};
   BTree<int,int,std::less<int>> t1{p};
   t1.print();
   
-  random_fill(t1, 15);
+  random_fill(t1, 15);*/
    
   return 0;
 }
