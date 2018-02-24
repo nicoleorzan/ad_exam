@@ -6,6 +6,7 @@
 #include <vector> 
 
 
+// BTree::insert()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){ 
   if( root == nullptr){
@@ -17,7 +18,9 @@ void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){
     this->root->insert_node(p); 
 }
 
-// insert node
+
+
+// BNode::insert node()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
   // key is already present
@@ -54,10 +57,14 @@ template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::print() {
   using ConstIterator = BTree<TK,TV,Tcomp>::ConstIterator;
   ConstIterator it = this->cbegin(), end = this->cend();
-  // std::cout << "print" << std::endl;
+  #ifdef DEBUG
+  	if(it == end)
+        	std::cout<<"BTree::print() : Tree is empty"<<"\n";
+  #endif
   for( ; it != end; ++it )
   	std::cout << (*it).first << " " << (*it).second << std::endl; 
 }
+
 
 // BTree::clear()
 template<class TK, class TV, class Tcomp>
@@ -88,6 +95,61 @@ void BTree<TK,TV,Tcomp>::BNode::clear_node(){
 	this->right.reset(nullptr);
 }
 
+
+// BTree::find(TK)
+template <class TK, class TV, class Tcomp>
+class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
+    if( root == nullptr ) 
+      return Iterator{nullptr};
+    	
+    BNode *pt = root.get();
+    
+    while ( comparison(pt->pair.first, k) || comparison(k, pt->pair.first) ){
+      if( comparison( pt->pair.first, k ) ){
+	if (pt->right != nullptr) {
+	  pt = pt->right.get();
+	}
+	else return Iterator{nullptr};
+      }
+      else {
+	if (pt->left!= nullptr) {
+	  pt = pt->left.get();
+	}
+	else return Iterator{nullptr};
+      }
+    }
+
+return Iterator{pt};  
+} // find
+
+
+// BTree::cfind(TK)   const
+template <class TK, class TV, class Tcomp>
+class BTree<TK,TV,Tcomp>::ConstIterator BTree<TK,TV,Tcomp>::cfind(TK k){
+    if( root == nullptr ) 
+      return ConstIterator{nullptr};
+    	
+    BNode *pt = root.get();
+    
+    while ( comparison(pt->pair.first, k) || comparison(k, pt->pair.first) ){
+      if( comparison( pt->pair.first, k ) ){
+	if (pt->right != nullptr) {
+	  pt = pt->right.get();
+	}
+	else return ConstIterator{nullptr};
+      }
+      else {
+	if (pt->left!= nullptr) {
+	  pt = pt->left.get();
+	}
+	else return ConstIterator{nullptr};
+      }
+    }
+
+return ConstIterator{pt};  
+} // find
+
+
 // ~BTree()
 template<class TK, class TV, class Tcomp>
 BTree<TK,TV,Tcomp>::~BTree(){
@@ -100,6 +162,7 @@ BTree<TK,TV,Tcomp>::~BTree(){
 
 
 //BALANCE FUNCTIONS
+// BTree::balance()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::balance(){
 #ifdef DEBUG
@@ -121,6 +184,7 @@ void BTree<TK,TV,Tcomp>::balance(){
   built_tree(vec,0,size-1);
 }
 
+// BTree::built_tree()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int start, int end){
   if (start>end) return;
@@ -138,7 +202,7 @@ void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int sta
 }
 
 
-
+// BTree::isbalanced()
 template<class TK, class TV, class Tcomp>
 bool BTree<TK,TV,Tcomp>::isbalanced(){
   if (root!=nullptr){
@@ -153,6 +217,8 @@ bool BTree<TK,TV,Tcomp>::isbalanced(){
   }
 }
 
+
+// BNode::isbalanced_node()
 template<class TK, class TV, class Tcomp>
 int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
 
@@ -185,11 +251,14 @@ int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
  
 }
 
+
+// BTree::erase()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::erase(TK key){
   if (root!=nullptr)
      this->root->find_node(key);
 }
+
 
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::find_node(TK key){
@@ -280,5 +349,12 @@ void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
 }
 
 
-// explicit template
+
+//
+// explicit templates
+//
+
 template class BTree<int,int, std::less<int>>;
+template class BTree<int,double, std::less<int>>;
+template class BTree<std::string, std::string, std::less<std::string>>;
+template class BTree<char, double, std::less<char>>;
