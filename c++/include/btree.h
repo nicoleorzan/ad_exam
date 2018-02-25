@@ -48,10 +48,6 @@ template<class TK, class TV, class Tcomp>
   	#ifdef DEBUG
 	std::cout << "BNode copy ctor" << std::endl;
 	#endif
-	if( b.left != nullptr )
-		left.reset( new BNode{ *b.left } );
-	if( b.right != nullptr )
-		right.reset( new BNode{ *b.right } );
   }
 
     /**
@@ -75,6 +71,17 @@ template<class TK, class TV, class Tcomp>
      * Bnode utility function to erase a Node
      */
     void find_node(TK key);
+    
+    void copy_node(BTree<TK,TV,Tcomp>& t){
+    	if( this->left != nullptr ){
+    		t.insert(left->pair);
+    		this->left->copy_node(t);
+    	}
+    	if( this->right != nullptr ){
+    		t.insert(right->pair);
+    		this->right->copy_node(t);
+    	}
+    };
 		
   }; // BNode
 
@@ -115,6 +122,7 @@ template<class TK, class TV, class Tcomp>
   	std::cout << "BTree copy constructor: BTree(const BTree& t)" << std::endl;
   	#endif
   	root.reset(new BNode{ *t.root } );
+  	t.root->copy_node(*this);
   }
   
   
@@ -124,6 +132,7 @@ template<class TK, class TV, class Tcomp>
   	std::cout << "BTree copy assignment: BTree& operator=(const BTree& t)" << std::endl;
   	#endif
   	root.reset(new BNode{ *t.root } );
+  	t.root->copy_node(*this);
   	return *this;
   }
   
@@ -187,32 +196,12 @@ template<class TK, class TV, class Tcomp>
    * Iterator find function, which returns an iterator to the 
    * node with the given key. If the node is not found returns end function.
    */
-  Iterator find(TK k){
-    if( root == nullptr ) 
-      return Iterator{nullptr};
-    	
-    BNode *pt = root.get();
-    
-    while ( comparison(pt->pair.first, k) || comparison(k, pt->pair.first) ){
-      if( comparison( pt->pair.first, k ) ){
-	if (pt->right != nullptr) {
-	  pt = pt->right.get();
-	}
-	else return Iterator{nullptr};
-      }
-      else {
-	if (pt->left!= nullptr) {
-	  pt = pt->left.get();
-	}
-	else return Iterator{nullptr};
-      }
-    }
-    //std::cout<<"found"<<std::endl;
-    //std::cout<<"key val "<<pt->pair.first<<std::endl;
-    return Iterator{pt};
-  }
+  Iterator find(TK);
+  
   
   class ConstIterator;
+  
+  ConstIterator cfind(TK);
   
   /*
   ConstIterator begin() const {
