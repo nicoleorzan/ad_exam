@@ -300,8 +300,7 @@ void balance_test(){
 {	
 	
 
-	std::cout << "\n\nTEST ON RANDOM STRINGS\n\n " << std::endl;
-	std::cout << "fill the tree with 10 random strings" << std::endl;
+	std::cout << "\n\nTEST ON RANDOM STRINGS " << std::endl;
 	
 	double start, end, max;
 	BTree<std::string,int,std::less<std::string>> t;
@@ -309,21 +308,11 @@ void balance_test(){
     	std::pair<std::string, int> p;
     	unsigned int j, size;
     	int depth;
-    	
-    	size = 10;
-    	for( j=0; j<size; j++)
-    		v.push_back( random_str(6) );
-    		
-    	for( j=0; j<size; j++){
-    		p = {v[j], (int) j};
-    		t.insert(p);
-    	}
-    		
-    	t.print();
+
     	
     	
-    	std::cout << "\n\ntest of find time in a tree with 1000000 strings" << std::endl;
-    	size = 1000000;
+    	std::cout << "\n\ntest of find time in a tree with 10000 strings" << std::endl;
+    	size = 10000;
 	v.clear();
 	t.clear();
     	std::string r;

@@ -71,7 +71,9 @@ template<class TK, class TV, class Tcomp>
      * Bnode utility function to erase a Node
      */
     void find_node(TK key);
-    
+    /**
+     * BNode function that recursively insert the node of the tree in another tree passed as reference
+     */    
     void copy_node(BTree<TK,TV,Tcomp>& t){
     #ifdef DEBUG
     	std::cout << "BNode::copy_node()" << std::endl;
@@ -87,6 +89,9 @@ template<class TK, class TV, class Tcomp>
     	}
     };
     
+    /**
+     * BNode function that recursively measure the depth of a tree
+     */    
     void measure_depth(int&, int&);
 		
   }; // BNode
@@ -122,8 +127,8 @@ template<class TK, class TV, class Tcomp>
   /** BTree destructor */
   ~BTree();  
   
-  // copy const
-  BTree(const BTree& t) /*: root { new BNode{ t.root->pair } } */ {
+  /** copy constructor */
+  BTree(const BTree& t) {
   	#ifdef DEBUG
   	std::cout << "BTree copy constructor: BTree(const BTree& t)" << std::endl;
   	#endif
@@ -132,7 +137,7 @@ template<class TK, class TV, class Tcomp>
   }
   
   
-  //copy assignment
+  /** copy assignment */
   BTree& operator=(const BTree& t){
   	#ifdef DEBUG
   	std::cout << "BTree copy assignment: BTree& operator=(const BTree& t)" << std::endl;
@@ -142,14 +147,14 @@ template<class TK, class TV, class Tcomp>
   	return *this;
   }
   
-  // move const
+  /** move constructor */
   BTree(BTree&& t): root{std::move(t.root)} { 
   	#ifdef DEBUG
   	std::cout << "BTree move const: BTree(BTree&& t)" << std::endl;
   	#endif 
   }
 		
-  // move assignment
+  /** move assignment */
   BTree& operator=(BTree&& t){ 
   	#ifdef DEBUG
   	std::cout << "BTree move assignment: BTree& operator=(BTree&& t)" << std::endl; 
@@ -172,13 +177,17 @@ template<class TK, class TV, class Tcomp>
   bool isbalanced();
   /** BTree function to erase a Node with the given key  */
   void erase(TK key);
-  
+  /** BTree function to measure the max depth of the tree  */
   int measure_depth();
 
   struct comparison {
     bool operator()(const TK& a, const TK& b) { return a < b; }
   };
   
+  /** 
+   *  An Iterator for the BTree acts like a pointer and allows the user to access the nodes
+   *  of the tree following the keys order
+   */
   class Iterator;
 
   /** Iterator begin function, which returns the smallest key value   */
@@ -206,22 +215,14 @@ template<class TK, class TV, class Tcomp>
    */
   Iterator find(TK);
   
-  
+  /** Like the Iterator class but cannot modify what it points to 
+   *  this class is derived by Iterator	
+   */
   class ConstIterator;
   
+  /** Like find but returns a ConstIterator*/
   ConstIterator cfind(TK);
   
-  /*
-  ConstIterator begin() const {
-    if( root == nullptr )
-    return ConstIterator{nullptr};
-    BNode *pt = root.get();
-    while( pt->left != nullptr )
-      pt = pt->left.get();	
-      return ConstIterator{pt};
-      }	
-      ConstIterator end() const {return ConstIterator{nullptr}; } */
-
   /** ConstIterator cbegin function, which returns the smallest key value */
   ConstIterator cbegin() const {
     if( root == nullptr )
@@ -248,9 +249,11 @@ template <class TK, class TV, class Tcomp>
  public:
    
  Iterator(BNode* n) : current{n} {}
+ 
+    /** Function to dereference an Iterator */
     std::pair<TK,TV>& operator*() const { return current->pair; }
 
-    // ++it
+    /** Function to move the iterator to the next node */
     Iterator& operator++() {
       if( current->right != nullptr ){
 	BNode *p;
@@ -258,7 +261,6 @@ template <class TK, class TV, class Tcomp>
 	while( p->left != nullptr )
 	  p = p->left.get();
 	current = p;
-	// return *this;
       }
       else{
 	if( current->next != nullptr){
@@ -273,7 +275,7 @@ template <class TK, class TV, class Tcomp>
     }		
 
   
-  // it++
+    /** Another function to move the iterator to the next node */
     Iterator operator++(int) {
       Iterator it{current};
       ++(*this);
@@ -287,7 +289,6 @@ template <class TK, class TV, class Tcomp>
     /** boolean operator to check if two nodes are different*/
     bool operator!=(const Iterator& other) { return !(*this == other); }
 		
-    bool is_nullptr() { return current == nullptr; }
 }; // Iterator
 
 //const iterator
