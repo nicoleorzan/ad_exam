@@ -97,13 +97,14 @@ void BTree<TK,TV,Tcomp>::clear(){
     	#endif
   	return;
   }
-  root->clear_node();
-  root.reset(nullptr);
+  //root->clear_node();
+  //root.reset(nullptr);
+  root.reset();
 }
 
 
 // BNode::clear_node()
-template <class TK, class TV, class Tcomp>
+/*template <class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::clear_node(){
 
 	if( this->left != nullptr ){
@@ -115,7 +116,7 @@ void BTree<TK,TV,Tcomp>::BNode::clear_node(){
 	
 	this->left.reset(nullptr);
 	this->right.reset(nullptr);
-}
+	}*/
 
 
 // BTree::find(TK)
@@ -131,16 +132,28 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
 	if (pt->right != nullptr) {
 	  pt = pt->right.get();
 	}
-	else return Iterator{nullptr};
+	else{
+	  return Iterator{nullptr};
+#ifdef DEBUG
+	  std::cout << "key not found" << std::endl;
+#endif
+	}
       }
       else {
 	if (pt->left!= nullptr) {
 	  pt = pt->left.get();
 	}
-	else return Iterator{nullptr};
+	else{
+	  return Iterator{nullptr};
+#ifdef DEBUG
+	  std::cout << "key not found" << std::endl;
+#endif
+	}
       }
     }
-
+#ifdef DEBUG
+    std::cout << "key found" << std::endl;
+#endif
 return Iterator{pt};  
 }
 
@@ -349,12 +362,12 @@ void BTree<TK,TV,Tcomp>::BNode::erase_node(){
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::diagram(){
   if (root!=nullptr)
-  this->root->diagram(20);  
+    this->root->diagram(6);  
 }
 
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
-   if(this != nullptr) {
+  if(this != nullptr) {
     if (indent) {
       std::cout << std::setw(indent) << ' ';
       std::cout<< this->pair.first<<std::endl;
@@ -365,7 +378,7 @@ void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
     if (this->right) {
       this->right->diagram(indent + 2);
     }
-   }
+  }
 }
 
 
