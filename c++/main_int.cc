@@ -6,44 +6,41 @@
 
 #include <btree.h>
 #include <iostream>
-#include <cstdlib>   // rand()
+#include <cstdlib>
 #include <vector>
 #include <string>
+#include <cmath>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/time.h>
 
 
-/*
-void random_fill(BTree<int,int,std::less<int>>& t, int size){
-int r, i;
-unsigned int j;
-std::pair<int,int> p;
-std::vector<std::pair<int,int>> v;
-	
-  t.clear();
+// measure time
+double cclock(){
 
-  for(i=0; i<size; i++){
-    r = rand() % (size*100);
-    p = {r, r};
-    for( j=0; j<v.size(); j++){
-	if( p == v[j] )
-		break;
-    }
-	if( j == v.size() )
-		v.push_back(p);
-   }
+  struct timeval tmp;
+  double sec;
+  gettimeofday( &tmp, (struct timezone *)0 );
+  sec = tmp.tv_sec + ((double)tmp.tv_usec)/1000000.0;
+  return sec;
+}
 
 
-std::cout << "v has size " << v.size() << std::endl;
-for( j=0; j<v.size(); j++)
-	t.insert( v[j] );
-	
-std::cout << "t" << std::endl;
-t.print();
+// generate a random string
+std::string random_str(int length){
+std::string pool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+std::string res;
+res.resize(length);
 
-} // random_fill
-*/
+for( int i=0; i<length; i++)
+	res[i] = pool[ rand() % pool.length() ];
+
+return res;
+}
 
 
 
+// constructor test
 void constructor_test(){
 
   std::cout << "####################################################" << std::endl;
@@ -156,11 +153,15 @@ void constructor_test(){
 } // constructor_test
 
 
+
+
+
+// copy move test
 void copymove_test(){
 
 	std::cout << "####################################################" << std::endl;
-	std::cout << "\nCOPY MOVE TEST:\n" << std::endl;
-	std::cout << "test copy and move constructor and assignment" << std::endl;
+	std::cout << "\nCOPY MOVE TEST:" << std::endl;
+	std::cout << "test copy and move constructor and assignment\n" << std::endl;
 	std::cout << "####################################################" << std::endl;
 	std::pair<int,int> p;
 	unsigned int j;
@@ -242,82 +243,138 @@ void copymove_test(){
 
 
 
-/*
+
+
+// balance test
 void balance_test(){
   
- std::cout << "####################################################" << std::endl;
-  std::cout << "\nBALANCE TREE TESTING:" << std::endl;
+  std::cout << "####################################################" << std::endl;
+  std::cout << "\nBALANCE TREE TESTING:\n" << std::endl;
   std::cout << "####################################################" << std::endl;
 
-   std::pair<int,int> p{1,1};
-  std::cout << "BTree<int,int> t{p};" << std::endl;
-  BTree<int,int,std::less<int>> t;//{p};
-  std::cout << "t.print()" << std::endl;
-  t.print();
 
-  std::vector<int> v{20,10,30,5,15,25,35,3,8,12,17,22,27,32,39,1,4};
-    for(unsigned int j=0; j< v.size(); j++){
-      p = {v[j], v[j]};
-      t.insert(p);
-    }
-    std::cout << "inserted  v{20,10,30,5,15,25,35,3,8,12,17,22,27,32,39,1,4}" << std::endl;
-    // std::cout << "t.print()" << std::endl;
-    //t.print();
-    std::cout << "t.diagram()" << std::endl;
-    t.diagram();
-    std::cout << "t.erase(25)" << std::endl;
-    t.erase(25);
-    std::cout << "t.diagram()" << std::endl;
-    t.diagram();
-    std::cout << "t.isbalanced()" << std::endl;
-    t.isbalanced();
-    t.diagram();
-    std::cout << "t.balance()" << std::endl;
-    t.balance();
-    std::cout << "t.isbalanced()" << std::endl;
-    t.isbalanced();
-    std::cout << "t.find(87)" << std::endl;
-    t.find(87);
-    std::cout << "t.diagram()" << std::endl;
-    t.diagram();
-    std::cout << "t.clear()" << std::endl;
-    t.clear();
-    
-    std::vector<int> v1{2,17,11,25,4,33,3,2,1,15,87,7,6,5,18};
-    for(unsigned int j=0; j< v1.size(); j++){
-      p = {v1[j], v1[j]};
-      t.insert(p);
-    }
-    std::cout << "inserted v1{33,17,11,25,4,3,2,1,15,87,7,6,5,2,18}" << std::endl;
 
-    std::cout << "t.print()" << std::endl;
-    t.print();
-    std::cout << "t.find(7)" << std::endl;
-    t.find(7);
-    std::cout << "t.isbalanced()" << std::endl;
-    t.isbalanced();
-    t.diagram();
-    std::cout << "t.balance()" << std::endl;
-    t.balance();
-    std::cout << "t.isbalanced()" << std::endl;
-    t.isbalanced();
-    std::cout << "t.erase(7)" << std::endl;
-    t.erase(7);
-    std::cout << "t.diagram()" << std::endl;
-    t.diagram();
-    std::cout << "t.clear()" << std::endl;
-  
-  BTree<int,int,std::less<int>>::Iterator it = t.begin(), end = t.end();
-    std::cout << "t.find(100)" << std::endl;
-    it = t.find(100);
-    if( it == end )
-    	std::cout << "it == end" << std::endl;
-    
-    std::cout << "t.diagram()" << std::endl;
-    t.diagram();
-    t.clear();
+{
+	std::pair<int,int> p;
+	unsigned int j;
+	int depth = 0;
+
+
+	BTree<int,int,std::less<int>> t1;
+    	std::vector<int> v{4,2,6,1,3,5,7};
+    	for(j=0; j< v.size(); j++){
+      		p = {v[j], v[j]};
+      		t1.insert(p);
+    	}
+    	std::cout << "\ninserted v={4,2,6,1,3,5,7} in t1" << std::endl;
+	std::cout << "t1.print()" << std::endl;
+	t1.print();
+	
+	depth = t1.measure_depth();
+	
+	std::cout << "depth: " << depth << std::endl;
+
+	t1.clear();
+	t1.print();
+	
+	std::cout << "inserting numbers from 1 to 34 backwards..." << std::endl;
+
+    	for(j=34; j > 0; j--){
+      		p = {j, j};
+      		t1.insert(p);
+    	}
+    	
+	depth = t1.measure_depth();
+	
+	std::cout << "depth before balance: " << depth << std::endl;
+	
+	t1.balance();
+    	depth = t1.measure_depth();
+	
+	std::cout << "depth after balance: " << depth << std::endl;
+	
+	std::cout << "2^(depth-1) = " << pow(2.0, depth-1) << std::endl;
+	std::cout << "2^depth = " << pow(2.0, depth) << std::endl;
 }
-*/
+
+{	
+	
+
+	std::cout << "\n\nTEST ON RANDOM STRINGS\n\n " << std::endl;
+	std::cout << "fill the tree with 10 random strings" << std::endl;
+	
+	double start, end, max;
+	BTree<std::string,int,std::less<std::string>> t;
+    	std::vector<std::string> v;
+    	std::pair<std::string, int> p;
+    	unsigned int j, size;
+    	int depth;
+    	
+    	size = 10;
+    	for( j=0; j<size; j++)
+    		v.push_back( random_str(6) );
+    		
+    	for( j=0; j<size; j++){
+    		p = {v[j], (int) j};
+    		t.insert(p);
+    	}
+    		
+    	t.print();
+    	
+    	
+    	std::cout << "\n\ntest of find time in a tree with 1000000 strings" << std::endl;
+    	size = 1000000;
+	v.clear();
+	t.clear();
+    	std::string r;
+
+    	while(v.size()<size){
+    		r = random_str(15);
+      		v.push_back(r);
+  	}
+
+	for( j=0; j<v.size(); j++){
+		p = {v[j] , (int) j};
+		t.insert( p );
+	}
+
+	depth = t.measure_depth();
+	
+	std::cout << "depth before balance: " << depth << std::endl;
+
+	max = 0.0;
+
+	for(j=0; j<v.size(); j++){
+		start = cclock();
+		t.find( v[j] );
+		end = cclock();
+		if( (end - start) > max )
+			max = end - start;
+	}
+
+	std::cout << "max time before balance: " << max << std::endl;
+	
+
+	t.balance();
+	depth = t.measure_depth();
+	std::cout << "depth after balance: " << depth << std::endl;
+	
+	
+	max = 0.0;
+
+	for(j=0; j<v.size(); j++){
+		start = cclock();
+		t.find( v[j] );
+		end = cclock();
+		if( (end - start) > max )
+			max = end - start;
+	}
+
+	std::cout << "max time after balance: " << max << std::endl;
+	
+} // test on random trees
+
+} // balance_test
 
 
 
@@ -325,11 +382,12 @@ void balance_test(){
 
 
 
+// find test
 void find_test(){
 
 	std::cout << "####################################################" << std::endl;
-	std::cout << "\nFIND TEST:\n" << std::endl;
-	std::cout << "test the find function and other features of Iterator" << std::endl;
+	std::cout << "\nFIND TEST:" << std::endl;
+	std::cout << "test the find function and other features of Iterator\n" << std::endl;
 	std::cout << "####################################################" << std::endl;
 
 std::pair<int,int> p;
@@ -425,7 +483,7 @@ int main(){
   
   find_test();
   
-  // balance_test();
+  balance_test();
    
   return 0;
 }

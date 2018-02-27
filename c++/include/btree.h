@@ -73,6 +73,10 @@ template<class TK, class TV, class Tcomp>
     void find_node(TK key);
     
     void copy_node(BTree<TK,TV,Tcomp>& t){
+    #ifdef DEBUG
+    	std::cout << "BNode::copy_node()" << std::endl;
+    #endif 
+    
     	if( this->left != nullptr ){
     		t.insert(left->pair);
     		this->left->copy_node(t);
@@ -82,6 +86,8 @@ template<class TK, class TV, class Tcomp>
     		this->right->copy_node(t);
     	}
     };
+    
+    void measure_depth(int&, int&);
 		
   }; // BNode
 
@@ -166,6 +172,8 @@ template<class TK, class TV, class Tcomp>
   bool isbalanced();
   /** BTree function to erase a Node with the given key  */
   void erase(TK key);
+  
+  int measure_depth();
 
   struct comparison {
     bool operator()(const TK& a, const TK& b) { return a < b; }

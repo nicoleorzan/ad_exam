@@ -6,6 +6,35 @@
 #include <vector> 
 
 
+// BNode::measure_depth()
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::BNode::measure_depth(int& max, int& cur){
+	cur++;
+	if( cur > max )
+		max = cur;
+	if( left != nullptr )
+		left->measure_depth(max, cur);
+	if( right != nullptr )
+		right->measure_depth(max, cur);
+		
+	cur--;
+}
+
+// BTree::measure_depth()
+template<class TK, class TV, class Tcomp>
+int BTree<TK,TV,Tcomp>::measure_depth(){
+	int current = 0, depth = 0;
+	
+	if( root == nullptr )
+		return 0;
+	// std::cout << "measure: cur %d depth %d" << std::endl;
+	root->measure_depth(depth, current);
+	
+	// std::cout << "measure: cur %d depth %d" << std::endl;
+	return depth;
+}
+
+
 // BTree::insert()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){ 
@@ -27,7 +56,7 @@ void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
   if (!comparison(this->pair.first, p.first) && !comparison(p.first,this->pair.first) ){
     // if( this->pair.first == p.first ){
     this->pair.second = p.second;
-    // std::cout << "already present" << std::endl;
+    std::cout << "already present" << std::endl;
   }
   else if (comparison(p.first,this->pair.first) ){
     //else if( this->pair.first > p.first ){
@@ -120,7 +149,7 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
     }
 
 return Iterator{pt};  
-} // find
+}
 
 
 // BTree::cfind(TK)   const
@@ -147,7 +176,7 @@ class BTree<TK,TV,Tcomp>::ConstIterator BTree<TK,TV,Tcomp>::cfind(TK k){
     }
 
 return ConstIterator{pt};  
-} // find
+}
 
 
 // ~BTree()
@@ -184,6 +213,8 @@ void BTree<TK,TV,Tcomp>::balance(){
   built_tree(vec,0,size-1);
 }
 
+
+
 // BTree::built_tree()
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int start, int end){
@@ -191,7 +222,7 @@ void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int sta
   int half = (start+end)/2;
   // std::cout<<"start "<<start<<", end "<<end<<", half "<<half<<std::endl;
   
-  std::pair<TK,TV> p= vec[half];
+  std::pair<TK,TV> p = vec[half];
   
   insert(p);
   
@@ -357,4 +388,5 @@ void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
 template class BTree<int,int, std::less<int>>;
 template class BTree<int,double, std::less<int>>;
 template class BTree<std::string, std::string, std::less<std::string>>;
+template class BTree<std::string, int, std::less<std::string>>;
 template class BTree<char, double, std::less<char>>;
