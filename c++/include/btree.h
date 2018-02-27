@@ -40,15 +40,7 @@ template<class TK, class TV, class Tcomp>
   BNode(std::pair<TK,TV> p): pair{p}, left{nullptr}, right{nullptr}, next{nullptr} {}
    /** BNode constructor with father node */
   BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, next{f} {}
-    // constructor for 2 elements separated
-    // BNode(TK key, TV val): pa{key,val}, left{nullptr}, right{nullptr} {}
-    
-  // BNode copy const
-  BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, next{b.next} {
-  	#ifdef DEBUG
-	std::cout << "BNode copy ctor" << std::endl;
-	#endif
-  }
+   
 
     /**
      * Bnode function for inserting a new Node
