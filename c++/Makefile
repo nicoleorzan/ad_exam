@@ -1,4 +1,5 @@
-EXE = main_int.x test/testlog.x
+EXE = main_int.x 
+EXE_TEST = test/testlog.x test/testlog_before.x test/testlog_after.x
 CXX = c++
 CFLAGS = -g -std=c++11 -Wall -Wextra
 IFLAGS = -I include
@@ -6,7 +7,7 @@ IFLAGS = -I include
 SRC = src/btree.cc
 
 
-all: $(EXE)
+all: $(EXE) $(EXE_TEST) 
 
 testlognik: testlognik.o src/btree.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
@@ -19,6 +20,9 @@ main_int: main_int.o src/btree.o
 
 #%.x: %.o src/btree.o
 #	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+%.x: %.o src/btree.o
+	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS) -fopenmp -O0
 
 doc: Doxygen/Doxy
 	doxygen $^
@@ -37,7 +41,10 @@ testlognikOMP.o: testlognikOMP.cc
 #%.o: %.cc
 #	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
 
+%.o: %.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) -fopenmp -O0
+
 clean:
-	@rm -rf *~ *.o src/*.o html latex $(EXE)
+	@rm -rf *~ *.o src/*.o html latex $(EXE) $(EXE_TEST)
 
 .PHONY: clean

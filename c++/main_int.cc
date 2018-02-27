@@ -300,8 +300,7 @@ void balance_test(){
 {	
 	
 
-	std::cout << "\n\nTEST ON RANDOM STRINGS\n\n " << std::endl;
-	std::cout << "fill the tree with 10 random strings" << std::endl;
+	std::cout << "\n\nTEST ON RANDOM STRINGS " << std::endl;
 	
 	double start, end, max;
 	BTree<std::string,int,std::less<std::string>> t;
@@ -309,21 +308,11 @@ void balance_test(){
     	std::pair<std::string, int> p;
     	unsigned int j, size;
     	int depth;
-    	
-    	size = 10;
-    	for( j=0; j<size; j++)
-    		v.push_back( random_str(6) );
-    		
-    	for( j=0; j<size; j++){
-    		p = {v[j], (int) j};
-    		t.insert(p);
-    	}
-    		
-    	t.print();
+
     	
     	
-    	std::cout << "\n\ntest of find time in a tree with 1000000 strings" << std::endl;
-    	size = 1000000;
+    	std::cout << "\n\ntest of find time in a tree with 10000 strings" << std::endl;
+    	size = 10000;
 	v.clear();
 	t.clear();
     	std::string r;
@@ -465,11 +454,44 @@ std::cout << "(*itc).second = 45646; would produce an error" << std::endl;
 }// find_test
 
 
+void erase_test(){
 
+  std::cout << "####################################################" << std::endl;
+  std::cout << "\nERASE TEST:" << std::endl;
+  std::cout << "####################################################" << std::endl;
 
+  std::pair<int,int> p;
+  unsigned int j;
 
-
-
+  BTree<int,int,std::less<int>> t;
+  std::vector<int> v{20,10,23,3,5,12,44,7,54,27,10,16};
+  for(j=0; j< v.size(); j++){
+    p = {v[j], v[j]};
+    t.insert(p);
+  }
+  std::cout << "\ninserted v={20,10,23,3,5,12,44,7,54,27,10,16} in t1" << std::endl;
+  std::cout<<"---PRINTING INITIAL TREE-- "<<std::endl;
+  t.print();
+  std::cout<<"--------- "<<std::endl;
+  
+  j = 1;
+  for(j=0; j< v.size(); j++){
+    std::cout<<"balancing tree "<<std::endl;
+    t.balance();
+    std::cout<<"erasing "<<v[j]<<std::endl;
+    t.erase(v[j]);
+    std::cout<<"finding "<<v[j]<<std::endl;
+    t.find(v[j]);
+  
+    std::cout<<"printing tree "<<std::endl;
+    t.print();
+    std::cout<<"inserting again "<<v[j]<<std::endl;
+    p = {v[j], v[j]};
+    t.insert(p);
+    std::cout<<"printing tree "<<std::endl;
+    t.print();
+  }
+} //erase test
 
 
 
@@ -484,6 +506,7 @@ int main(){
   find_test();
   
   balance_test();
-   
-  return 0;
+
+  erase_test();
+
 }
