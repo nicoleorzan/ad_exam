@@ -45,6 +45,6 @@ testlognikOMP.o: testlognikOMP.cc
 	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) -fopenmp -O0
 
 clean:
-	@rm -rf *~ *.o src/*.o html latex $(EXE)
+	@rm -rf *~ *.o src/*.o html latex $(EXE) $(EXE_TEST)
 
 .PHONY: clean
