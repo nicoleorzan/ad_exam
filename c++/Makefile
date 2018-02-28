@@ -38,6 +38,6 @@ doc: Doxygen/Doxy
 
 
 clean:
-	@rm -rf *~ *.o src/*.o test/*.o html latex main_test 
+	@rm -rf *~ *.o src/*.o test/*.o html latex main_test test/testlognikOMP
 
 .PHONY: clean

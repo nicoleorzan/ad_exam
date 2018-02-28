@@ -1,14 +1,16 @@
-##Binary Search Tree report
+## Binary Search Tree report
 
 The aim of this exam was to implement and test a Binary Search Tree in the c++ language.
-We organized our project dividing it into two main parts: the first part concerns the code implementation; we divided the code into an header, btree.h, located inside the "include" folder, in which are defined and implemented the classes BTree and its component, and a source file btree.cc, located inside the "src" folder, in which the longer functions are implemented.
-The second part concerns the code testing, for which we wrote the file main_test.cc where we checked the correcness of the code using different variable types, and the files contained inside the "test" folder, where we took tests to check the behavior of the time for the lookup inside the tree.
+We organized our project dividing it into two main parts: the first part concerns the code implementation; we divided the code into an header, "btree.h", located inside the "include" folder, in which are defined and implemented the classes BTree and its component, and a source file "btree.cc", located inside the "src" folder, in which the longer functions are implemented.
+The second part concerns the code testing, for which we wrote the file "main_test.cc" where we checked the correcness of the code using different variable types, and the files contained inside the "test" folder, where we took tests to check the behavior of the time for the lookup inside the tree.
 
-#The Code
-The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to _std::less<TK>_, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
+# The Code
+
+The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to _std::less<TK>_ function, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
 Let's discuss its composition first:
 
-#BNode components
+# BNode components
+
 All the BNode components are templated on the key type, the value type and the comparison operation, as the BTree. A BNode contains:
 - an _std::pair_ that contains the key and the associated value;
 - two BNode _unique\_ptr_ to the left and right childs;
@@ -20,7 +22,8 @@ We defined two different constructors for the BNode class:
 - one which requires a _std::pair_ and a pointer to the next node, needed to construct all following nodes.
 The BNode class contains some private methods which are mostly recursive and are called by the other BTree methods, used for example to insert a new node or to copy the tree. There are no BNode public methods.
 
-#BTree components
+# BTree components
+
 Inside the BTree class we defined and implemented the following data members:
 - a BNode _unique\_ptr_ to the root, as already said;
 - an instance of the comparison operator;
@@ -30,7 +33,8 @@ Inside the BTree class we defined and implemented the following data members:
 The Btree is provided with a copy semantic (copy constructor and copy assignment), which copies the tree using the BNode recursive function _copy\_node_, and a BTree move constructor and move assignment, which instead make use the built-in function _std::move()_.
 Inside the header we defined also a struct comparison, which represent the comparison operator between two templated keys; there are then different public BTree functions which are then developed inside the source file.
 
-#Iterators
+# Iterators
+
 Inside the BTree we defined the classes Iterator and ConstIterator; these objects contain a pointer to BNode and thanks to their methods they can be used to access every element of the tree in order, starting from the leftmost node (which is the one with the smallest key value) and incrementing until the end of the tree.
 The Iterator pointer can be moved to the next node with the overloaded operators _operator++()_ and _operator++(int)_, and the data it points to, i.e. the _std::pair_, can be accessed by reference with the overloaded _operator*()_.
 Others operator overloads (==, !=) allows the user to compare Iterators between them; these boolean functions simply compare the BNode pointer of the two Iterators.
@@ -52,13 +56,15 @@ The BTree functions developed inside the source file are the following:
 The code we wrote is documented with doxygen, through the makefile you can easily obtain a latex and an html documentation for all the classes and methods implemented; to obtain it just run 'make doc'
 
 
-#Run and test the Code
+# Run and test the Code
+
 To test the correctness of the implemented code, first of all we wrote a file _main\_test.cc_, to check the implemented functions using various types for keys and values. Inside the file you can find some functions that are made to check:
 - the constructor, destructor and print functions of the tree;
 - the copy-move sematics;
 - the find function;
 - the balance function;
 - the erase function;
+
 This file is compiled with the option -D DEBUG, that makes all the main function print on the console some lines which allows to understand what is going on. This program should be also run under the supervision of the _valgrind_ tool, with the option '--tool=memcheck' to check that there are no memory problems during the execution.
 
 In the folder "test", you can find the files we used to check the trend of the time spent by the code to find a key inside the tree before and after using the balance function on it.
@@ -70,6 +76,6 @@ We actually noticed that the behavoir of the timings is better after using the b
 
 The program testlognikOMP.cc measure the maximal time spent by the function _find(TK)_ to search for all the possible keys inside trees with a dimension that goes from 2^15 - 1 to 2^24 - 1. The keys for these trees are randomly generated strings with 100 characters, this is to minimize the occurence of two identical keys, a thing that can decrease the tree size. For each tree the maximal lookup time is measured as many time as are the threads in the openMP environment. The program measure both the lookup time and the depht of the tree before and after the call to the balance function, for the former it computes the mean since we observed that otherwise the results can vary a lot for the same identical tree. A graph of these results can be found below. As we can see in both the cases the time follows a logarithmic curve but when the tree is balanced the time is shorter. Looking at the second graph, the one with the depth of the tree, we can observe that for a randomly generated tree the depth also follows a logarithmic trend while, as expected, for the balanced tree the base 2 logarithm function perfectly fits all the points (this is a consequence of the tree dimension choice). 
 
-image: ![](nik_times.png)
-image: ![](nik_depth.png)
+![](nik_times.png)
+![](nik_depth.png)
 
