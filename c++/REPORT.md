@@ -2,7 +2,7 @@
 
 The aim of this exam was to implement and test a Binary Search Tree in the c++ language.
 We organized our project dividing it into two main parts: the first part concerns the code implementation; we divided the code into an header, "btree.h", located inside the "include" folder, in which are defined and implemented the classes BTree and its component, and a source file "btree.cc", located inside the "src" folder, in which the longer functions are implemented.
-The second part concerns the code testing, for which we wrote the file "main_test.cc" where we checked the correcness of the code using different variable types, and the files contained inside the "test" folder, where we took tests to check the behavior of the time for the lookup inside the tree.
+The second part concerns the code testing, for which we wrote the file "main_test.cc" where we checked the correctness of the code using different variable types, and the files contained inside the "test" folder, where we took tests to check the behavior of the time for the lookup inside the tree.
 
 # The Code
 
@@ -67,12 +67,14 @@ To test the correctness of the implemented code, first of all we wrote a file _m
 
 This file is compiled with the option -D DEBUG, that makes all the main function print on the console some lines which allows to understand what is going on. This program should be also run under the supervision of the _valgrind_ tool, with the option '--tool=memcheck' to check that there are no memory problems during the execution.
 
-In the folder "test", you can find the files we used to check the trend of the time spent by the code to find a key inside the tree before and after using the balance function on it.
-We know that in the worst case we expect that the algorithm to find a key has a time complexity of O(N), while after the balance of the tree we expect a trend like O(log N), where N is the tree size. To perform the test we compiled the code with the -O0 option to avoid the insertion of any compiler optimization.
+In the folder "test" two main files we used to check the trend of the time spent by the code to find a key inside the tree before and after using the balance function on it.
+We know that in the worst case we expect that the algorithm to find a key has a time complexity of O(N), while after the balance of the tree we expect a trend like O(log N), where N is the tree size. To perform the test we tried also to compile the code with the -O0 option to avoid the insertion of any compiler optimization.
 At the beginning we performed some tests on our laptops, but to be able to use trees of really big sizes we decided to ask for the help of OpenMP, parallelizing our code and running it on Ulysses cluster.
-Using OpenMP we created different threads (generally 20, as Ulysses' cores) and we made each one of them search for the maximum time spent for the lookup inside the tree; then we used those values to obtain a mean lookup time. Since we had really an high variance of the values we decided to run this code more times to compute a mean on more values.
-We actually noticed that the behavoir of the timings is better after using the balance function rather then before.
+Using OpenMP we created different threads (generally 20, as Ulysses' cores) and we made each one of them search for the maximum time spent for the lookup inside the tree; then we used those values to obtain a mean lookup time.
 
+In the program testlog.cc you can find a test made to measure the time spent by the function _find(TK)_ to search inside a tree composed of integer values. The file uses randomly generated trees of power of two, from 2^6 to 2^14; and searches the kay values from a vector of dimension which is half of the tree one. The program, as already said, uses OpenMP, computing the mean times for the maximum research, made an average on the time of every thread. Then, to have more values on which to compute a mean, the program was ran more than once, and were computed mean times and errors. You can notice from the graphs that the behavoir of the timings is much better after using the balance function, thought it doesn't seem at all logarithmic. Furthermore, the values for a single tree size oscillated a lot.
+
+![](Times_find.png)
 
 The program testlognikOMP.cc measure the maximal time spent by the function _find(TK)_ to search for all the possible keys inside trees with a dimension that goes from 2^15 - 1 to 2^24 - 1. The keys for these trees are randomly generated strings with 100 characters, this is to minimize the occurence of two identical keys, a thing that can decrease the tree size. For each tree the maximal lookup time is measured as many time as are the threads in the openMP environment. The program measure both the lookup time and the depht of the tree before and after the call to the balance function, for the former it computes the mean since we observed that otherwise the results can vary a lot for the same identical tree. A graph of these results can be found below. As we can see in both the cases the time follows a logarithmic curve but when the tree is balanced the time is shorter. Looking at the second graph, the one with the depth of the tree, we can observe that for a randomly generated tree the depth also follows a logarithmic trend while, as expected, for the balanced tree the base 2 logarithm function perfectly fits all the points (this is a consequence of the tree dimension choice). 
 

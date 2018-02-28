@@ -57,15 +57,6 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
      * Bnode utility function to check if the tree is balanced
      */
     int isbalanced_node();
-    void diagram(int indent);
-    /**
-     * Bnode function to erase a Node
-     */
-    void erase_node();
-    /**
-     * Bnode utility function to erase a Node
-     */
-    void find_node(TK key);
     
     /**
      * BNode function that recursively insert the node of the tree in another tree passed as reference
@@ -168,14 +159,10 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   void print();
   /** BTree function to clear the tree  */
   void clear();
-  /** BTree function to create a kind of diagram --not working well */
-  void diagram();
   /** BTree function to balance the tree  */
   void balance();
   /** BTree function to check if the tree is balanced  */
   bool isbalanced();
-  /** BTree function to erase a Node with the given key  */
-  void erase(TK key);
   /** BTree function to measure the max depth of the tree  */
   int measure_depth();
 
