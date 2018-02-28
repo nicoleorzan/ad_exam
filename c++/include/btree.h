@@ -12,7 +12,7 @@
  *that allows fast lookup, addition and remotion of the same. 
  *The class is templated on the type of keys and values of the nodes.
  */ 
-template<class TK, class TV, class Tcomp>
+template<class TK, class TV, class Tcomp=std::less<TK>>
   class BTree{
 
   //!\class BNode
@@ -41,7 +41,7 @@ template<class TK, class TV, class Tcomp>
    /** BNode constructor with father node */
   BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, next{f} {}
 
-// BNode copy const
+  /** BNode copy constuctor */
   BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, next{b.next} {
   	#ifdef DEBUG
 	std::cout << "BNode copy ctor" << std::endl;
@@ -53,10 +53,6 @@ template<class TK, class TV, class Tcomp>
      * Bnode function for inserting a new Node
      */		
     void insert_node( std::pair<TK,TV> p );
-    /**
-     * Bnode utility function to clean the tree
-     */
-    void clear_node();
     /**
      * Bnode utility function to check if the tree is balanced
      */
@@ -70,6 +66,7 @@ template<class TK, class TV, class Tcomp>
      * Bnode utility function to erase a Node
      */
     void find_node(TK key);
+    
     /**
      * BNode function that recursively insert the node of the tree in another tree passed as reference
      */    
@@ -95,11 +92,13 @@ template<class TK, class TV, class Tcomp>
 		
   }; // BNode
 
-/**root node of the tree as unique_ptr */
+
+
+
+
+  /**root node of the tree as unique_ptr */
   std::unique_ptr<BNode> root;
 
-  /** BTree private function to clear the tree    */
-  void clear(BNode *n);
    /** BTree private function to built the tree using a given vector of pairs  */
   void built_tree(std::vector<std::pair<TK,TV>> &vec, int start, int end);
 
@@ -117,6 +116,7 @@ template<class TK, class TV, class Tcomp>
   }
   
   /** BTree constructor with pair key-value, with comparison operator */
+ // BTree(std::pair<TK,TV> p, Tcomp c=std::less<TK>): root{new BNode{p}}, comparison{c} {  
  BTree(std::pair<TK,TV> p, Tcomp c=Tcomp{}): root{new BNode{p}}, comparison{c} {
 #ifdef DEBUG
     std::cout << "BTree(std::pair<TK,TV>)" << std::endl;

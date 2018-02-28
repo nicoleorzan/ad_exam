@@ -97,26 +97,8 @@ void BTree<TK,TV,Tcomp>::clear(){
     	#endif
   	return;
   }
-  //root->clear_node();
-  //root.reset(nullptr);
   root.reset();
 }
-
-
-// BNode::clear_node()
-/*template <class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::clear_node(){
-
-	if( this->left != nullptr ){
-		this->left->clear_node();
-		}
-	if( this->right != nullptr ){
-		this->right->clear_node();
-		}
-	
-	this->left.reset(nullptr);
-	this->right.reset(nullptr);
-	}*/
 
 
 // BTree::find(TK)
@@ -134,9 +116,6 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
 	}
 	else{
 	  return Iterator{nullptr};
-#ifdef DEBUG
-	  std::cout << "key not found" << std::endl;
-#endif
 	}
       }
       else {
@@ -145,15 +124,9 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
 	}
 	else{
 	  return Iterator{nullptr};
-#ifdef DEBUG
-	  std::cout << "key not found" << std::endl;
-#endif
 	}
       }
     }
-#ifdef DEBUG
-    std::cout << "key found" << std::endl;
-#endif
 return Iterator{pt};  
 }
 
