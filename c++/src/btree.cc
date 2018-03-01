@@ -38,7 +38,7 @@ int BTree<TK,TV,Tcomp>::measure_depth(){
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){ 
   if( root == nullptr){
-    root.reset(new BNode{p});
+    root.reset(new BNode{p, this->comparison});
   }
   else
     this->root->insert_node(p); 
@@ -56,7 +56,7 @@ void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
   }
   else if (comparison(p.first,this->pair.first) ){
     if( this->left == nullptr ){
-      this->left.reset(new BNode{p, this});
+      this->left.reset(new BNode{p, this, this->comparison});
       return;
     }
     else
@@ -64,7 +64,7 @@ void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
   }    
   else{
     if( this->right == nullptr ){
-      this->right.reset(new BNode{p, this->next});
+      this->right.reset(new BNode{p, this->next, this->comparison});
       return;
     }
     else
@@ -352,6 +352,8 @@ void BTree<TK,TV,Tcomp>::insert_subtree(std::unique_ptr<BNode>& n){
 // explicit templates
 //
 
+
+template class BTree<int,int, bool(*)(const int&, const int&)>;
 template class BTree<int,int, std::less<int>>;
 template class BTree<int,double, std::less<int>>;
 template class BTree<std::string, std::string, std::less<std::string>>;

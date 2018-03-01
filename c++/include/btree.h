@@ -25,8 +25,7 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
 
   public:
 
-    /**custom comparison operator*/
-    Tcomp comparison;
+
     /** key-value pair*/
     std::pair<TK,TV> pair;
     /** left child as unique_ptr */
@@ -35,14 +34,18 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
     std::unique_ptr<BNode> right;
     /** parent node */
     BNode* next;
-			
+    /**custom comparison operator*/
+    Tcomp comparison;
+    
+    			
    /** BNode constructor for pair key-value, only for root father is nullptr */
-  BNode(std::pair<TK,TV> p): pair{p}, left{nullptr}, right{nullptr}, next{nullptr} {}
+  BNode(std::pair<TK,TV> p, Tcomp c): pair{p}, left{nullptr}, right{nullptr}, next{nullptr}, comparison{c} {}
+  
    /** BNode constructor with father node */
-  BNode(std::pair<TK,TV> p, BNode* f): pair{p}, left{nullptr}, right{nullptr}, next{f} {}
+  BNode(std::pair<TK,TV> p, BNode* f, Tcomp c): pair{p}, left{nullptr}, right{nullptr}, next{f}, comparison{c} {}
 
   /** BNode copy constuctor */
-  BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, next{b.next} {
+  BNode(const BNode& b): pair{b.pair}, left{nullptr}, right{nullptr}, next{b.next}, comparison{b.comparison} {
   	#ifdef DEBUG
 	std::cout << "BNode copy ctor" << std::endl;
 	#endif
@@ -102,15 +105,15 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   Tcomp comparison;
   
   /** BTree default constructor */
-  BTree() {
+  BTree(Tcomp c=Tcomp{}): comparison{c} {
 #ifdef DEBUG
-    std::cout << "BTree()" << std::endl;
+    std::cout << "BTree(Tcomp c=Tcomp{})" << std::endl;
 #endif
   }
   
   /** BTree constructor with pair key-value, with comparison operator */
  // BTree(std::pair<TK,TV> p, Tcomp c=std::less<TK>): root{new BNode{p}}, comparison{c} {  
- BTree(std::pair<TK,TV> p, Tcomp c=Tcomp{}): root{new BNode{p}}, comparison{c} {
+ BTree(std::pair<TK,TV> p, Tcomp c=Tcomp{}): root{new BNode{p, c}}, comparison{c} {
 #ifdef DEBUG
     std::cout << "BTree(std::pair<TK,TV>)" << std::endl;
 #endif
@@ -124,8 +127,10 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   	#ifdef DEBUG
   	std::cout << "BTree copy constructor: BTree(const BTree& t)" << std::endl;
   	#endif
-  	root.reset(new BNode{ *t.root } );
-  	t.root->copy_node(*this);
+  	if(t.root != nullptr){
+  		root.reset(new BNode{ *t.root } );
+  		t.root->copy_node(*this);
+  	}
   }
   
   
@@ -134,13 +139,15 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   	#ifdef DEBUG
   	std::cout << "BTree copy assignment: BTree& operator=(const BTree& t)" << std::endl;
   	#endif
-  	root.reset(new BNode{ *t.root } );
-  	t.root->copy_node(*this);
+  	if(t.root != nullptr){
+  		root.reset(new BNode{ *t.root } );
+  		t.root->copy_node(*this);
+  	}
   	return *this;
   }
   
   /** move constructor */
-  BTree(BTree&& t): root{std::move(t.root)} { 
+  BTree(BTree&& t): root{std::move(t.root)}, comparison{std::move(t.comparison)} { 
   	#ifdef DEBUG
   	std::cout << "BTree move const: BTree(BTree&& t)" << std::endl;
   	#endif 
@@ -152,6 +159,7 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   	std::cout << "BTree move assignment: BTree& operator=(BTree&& t)" << std::endl; 
   	#endif
   	root = std::move(t.root);
+  	comparison = std::move(t.comparison);
   	return *this;
   }
 		

@@ -490,6 +490,73 @@ void erase_test(){
 } //erase test
 
 
+
+
+
+
+// test function
+bool test_funct(const int& a, const int& b){
+	return a > b;
+}
+
+
+
+
+void pass_function(){
+
+	bool (*ptf)(const int&, const int&) = test_funct;
+	std::cout << "BTree<int,int,bool(*)(const int&, const int&)> t{ptf};" << std::endl;
+	std::cout << "The function returns a > b, so the tree should be printed backwards" << std::endl;
+	BTree<int,int,bool(*)(const int&, const int&)> t{ptf};
+	std::vector<int> v{2,1,3,4,5};
+	std::pair<int,int> p;
+	unsigned int i;
+	std::cout << "inserting v = {2,1,3,4,5}" << std::endl;
+	for(i=0; i<v.size(); i++){
+		p = {v[i], v[i]};
+		t.insert(p);
+	}
+	std::cout << "print" << std::endl;
+	t.print();
+	
+	std::cout << "\ncopy constructor" << std::endl;
+	std::cout << "BTree<int,int,bool(*)(const int&, const int&)> t1 = t;" << std::endl;
+	BTree<int,int,bool(*)(const int&, const int&)> t1 = t;
+	t.clear();
+	std::cout << "print" << std::endl;
+	t1.print();
+	
+	std::cout << "\ncopy assignment" << std::endl;
+	std::cout << "t2 = t1;" << std::endl;
+	BTree<int,int,bool(*)(const int&, const int&)> t2;
+	t2 = t1;
+	
+	t1.clear();
+	t2.print();
+
+	std::cout << "\nmove assignment" << std::endl;
+	BTree<int,int,bool(*)(const int&, const int&)> t3;
+	std::cout << "BTree<int,int,std::less<int>> t3 = BTree<int,int>{p={5,5}}; calls" << std::endl;
+	t3 = BTree<int,int,bool(*)(const int&, const int&)>{p, ptf}; 
+	std::cout << "\nt2.print()" << std::endl;
+	t3.print();
+	
+	for(i=0; i<v.size(); i++){
+		p = {v[i], v[i]};
+		t3.insert(p);
+	}
+	std::cout << "print" << std::endl;
+	t3.print();
+
+	std::cout << "\nmove constructor" << std::endl;
+	BTree<int,int,bool(*)(const int&, const int&)> t4{std::move(t3)};
+	t4.print();
+	
+
+
+} // pass function
+
+
 int main(){
 
   constructor_test();
@@ -501,5 +568,7 @@ int main(){
   balance_test();
 
   erase_test();
+  
+  pass_function();
 
 }
