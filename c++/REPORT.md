@@ -6,7 +6,7 @@ The second part concerns the code testing, for which we wrote the file "main_tes
 
 ## The Code
 
-The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to _std::less<TK>_ function, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
+The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to _std::less`<TK>`_ function, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
 Let's discuss its composition first:
 
 ## BNode components
@@ -28,7 +28,7 @@ Inside the BTree class we defined and implemented the following data members:
 - a BNode _unique\_ptr_ to the root, as already said;
 - an instance of the comparison operator;
 - a BTree default empty constructor;
-- a BTree constructor which needs an _std::pair_ (to set the root node) and a comparions operator, which for the moment is set to the default _std::less<TK>_, where TK is the template for the key;
+- a BTree constructor which needs an _std::pair_ (to set the root node) and a comparions operator, which for the moment is set to the default _std::less`<TK>`_, where TK is the template for the key;
 - the BTree destructor; which is implemented inside the source file.
 The Btree is provided with a copy semantic (copy constructor and copy assignment), which copies the tree using the BNode recursive function _copy\_node_, and a BTree move constructor and move assignment, which instead make use the built-in function _std::move()_.
 Inside the header we defined also a struct comparison, which represent the comparison operator between two templated keys; there are then different public BTree functions which are then developed inside the source file.
@@ -75,6 +75,10 @@ Using OpenMP we created different threads (generally 20, as Ulysses' cores) and 
 In the program testlog.cc you can find a test made to measure the time spent by the function _find(TK)_ to search inside a tree composed of integer values. The file uses randomly generated trees of power of two, from 2^6 to 2^14; and searches the kay values from a vector of dimension which is half of the tree one. The program, as already said, uses OpenMP, computing the mean times for the maximum research, made an average on the time of every thread. Then, to have more values on which to compute a mean, the program was ran more than once, and were computed mean times and errors. You can notice from the graphs that the behavoir of the timings is much better after using the balance function, thought it doesn't seem at all logarithmic. Furthermore, the values for a single tree size oscillated a lot.
 
 ![](Times_find.png)
+
+In the following image is represented the behavior of the maximum search timings after the use of the balance function. The few points represented are due to the fact that in some of them we found really big errors, such that you couldn't see the behavior of the curve anymore.
+
+![](times_after.png)
 
 The program testlognikOMP.cc measure the maximal time spent by the function _find(TK)_ to search for all the possible keys inside trees with a dimension that goes from 2^15 - 1 to 2^24 - 1. The keys for these trees are randomly generated strings with 100 characters, this is to minimize the occurence of two identical keys, a thing that can decrease the tree size. For each tree the maximal lookup time is measured as many time as are the threads in the openMP environment. The program measure both the lookup time and the depht of the tree before and after the call to the balance function, for the former it computes the mean since we observed that otherwise the results can vary a lot for the same identical tree. A graph of these results can be found below. As we can see in both the cases the time follows a logarithmic curve but when the tree is balanced the time is shorter. Looking at the second graph, the one with the depth of the tree, we can observe that for a randomly generated tree the depth also follows a logarithmic trend while, as expected, for the balanced tree the base 2 logarithm function perfectly fits all the points (this is a consequence of the tree dimension choice). 
 
