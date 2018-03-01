@@ -6,20 +6,20 @@ The second part concerns the code testing, for which we wrote the file "main_tes
 
 ## The Code
 
-The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to _std::less`<TK>`_ function, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
+The Binary Search Tree is templated both on the values of the data it will contain and on the keys that will be used for retrieving them. Also the comparison operation between the keys is templated, allowing to use also custom-made types, but by default this operation is initialized to `std::less<TK>` function, being TK the template of the key. The primary componenet of the tree is the class BNode, defined inside the BTree class, so that it is visible only to it.
 Let's discuss its composition first:
 
 ## BNode components
 
 All the BNode components are templated on the key type, the value type and the comparison operation, as the BTree. A BNode contains:
-- an _std::pair_ that contains the key and the associated value;
+- an `std::pair` that contains the key and the associated value;
 - two BNode _unique\_ptr_ to the left and right childs;
 - a raw pointer to the next node, where by this we mean next according to the key values and the comparison operator used; this member is mostly used by the Iterator class discussed later.
 
 By using this simple structure the only data needed inside the tree is the _unique\_ptr_ to the first node inserted, which is called root.
 We defined two different constructors for the BNode class:
-- one which requires only the insertion of an _std::pair_, used only to create the root node (for which the _next_ is _nullptr_);
-- one which requires a _std::pair_ and a pointer to the next node, needed to construct all following nodes.
+- one which requires only the insertion of an `std::pair`, used only to create the root node (for which the _next_ is _nullptr_);
+- one which requires a `std::pair` and a pointer to the next node, needed to construct all following nodes.
 The BNode class contains some private methods which are mostly recursive and are called by the other BTree methods, used for example to insert a new node or to copy the tree. There are no BNode public methods.
 
 ## BTree components
@@ -28,15 +28,15 @@ Inside the BTree class we defined and implemented the following data members:
 - a BNode _unique\_ptr_ to the root, as already said;
 - an instance of the comparison operator;
 - a BTree default empty constructor;
-- a BTree constructor which needs an _std::pair_ (to set the root node) and a comparions operator, which for the moment is set to the default _std::less`<TK>`_, where TK is the template for the key;
+- a BTree constructor which needs an `std::pair` (to set the root node) and a comparions operator, which for the moment is set to the default `std::less<TK>`, where TK is the template for the key;
 - the BTree destructor; which is implemented inside the source file.
-The Btree is provided with a copy semantic (copy constructor and copy assignment), which copies the tree using the BNode recursive function _copy\_node_, and a BTree move constructor and move assignment, which instead make use the built-in function _std::move()_.
+The Btree is provided with a copy semantic (copy constructor and copy assignment), which copies the tree using the BNode recursive function _copy\_node_, and a BTree move constructor and move assignment, which instead make use the built-in function `std::move()`.
 Inside the header we defined also a struct comparison, which represent the comparison operator between two templated keys; there are then different public BTree functions which are then developed inside the source file.
 
 ## Iterators
 
 Inside the BTree we defined the classes Iterator and ConstIterator; these objects contain a pointer to BNode and thanks to their methods they can be used to access every element of the tree in order, starting from the leftmost node (which is the one with the smallest key value) and incrementing until the end of the tree.
-The Iterator pointer can be moved to the next node with the overloaded operators _operator++()_ and _operator++(int)_, and the data it points to, i.e. the _std::pair_, can be accessed by reference with the overloaded _operator*()_.
+The Iterator pointer can be moved to the next node with the overloaded operators _operator++()_ and _operator++(int)_, and the data it points to, i.e. the `std::pair`, can be accessed by reference with the overloaded _operator*()_.
 Others operator overloads (==, !=) allows the user to compare Iterators between them; these boolean functions simply compare the BNode pointer of the two Iterators.
 The BTree class is provided with the functions begin() and end(), which return respectively an Iterator to the leftmost node of the tree and an Itereator whose pointer is set to nullptr, the last one represent the end of the tree. The class ConstIterator is derived from the Iterator one, so has all its data and methods, but of course with the difference that now the dereference operator (_operator*()_) is declared _const_. For this class there are also two functions _cbegin()_ and _cend()_ that do the same job of their non-const counterparts.
 
@@ -44,7 +44,7 @@ The BTree class is provided with the functions begin() and end(), which return r
 
 The BTree functions developed inside the source file are the following:
 
-- _insert(std::pair<TK,TV>)_: a function used to insert a new BNode given a new key-value pair, this is only an interface for the recursive method _insert\_node_ that does all the job starting from the root node. This last function takes also care of initializing properly the pointer to the _next_ node, that depends only on the direction the new node is inserted. If the value of the key is already present in the tree the function prints a message and reset the second element of the pair to the new value.
+- _insert(`std::pair<TK,TV>`)_: a function used to insert a new BNode given a new key-value pair, this is only an interface for the recursive method _insert\_node_ that does all the job starting from the root node. This last function takes also care of initializing properly the pointer to the _next_ node, that depends only on the direction the new node is inserted. If the value of the key is already present in the tree the function prints a message and reset the second element of the pair to the new value.
 - _measure\_depth()_: a function which returns an integer with the maximal depth of the tree, uses the recursive method _measure\_depth_ of BNode;
 - _clear()_: function which deletes the tree, and which is called also by the tree destructor;
 - _print()_: a function which prints out the tree following the order of the keys (using the ConstIterator);
