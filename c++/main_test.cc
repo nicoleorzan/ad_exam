@@ -453,48 +453,6 @@ std::cout << "(*itc).second = 45646; would produce an error" << std::endl;
 }// find_test
 
 
-void erase_test(){
-
-  std::cout << "\n\n####################################################" << std::endl;
-  std::cout << "\nERASE TEST:\n" << std::endl;
-  std::cout << "####################################################" << std::endl;
-
-  std::pair<int,int> p;
-  unsigned int j;
-
-  BTree<int,int,std::less<int>> t;
-  std::vector<int> v{20,10,23,3,5,12,44,7,54,27,10,16};
-  for(j=0; j< v.size(); j++){
-    p = {v[j], v[j]};
-    t.insert(p);
-  }
-  std::cout << "\ninserted v={20,10,23,3,5,12,44,7,54,27,10,16} in t1" << std::endl;
-  std::cout<<"---PRINTING INITIAL TREE-- "<<std::endl;
-  t.print();
-  std::cout<<"--------- "<<std::endl;
-  
-  j = 1;
-  for(j=0; j< v.size(); j++){
-    std::cout<<"balancing tree "<<std::endl;
-    t.balance();
-    std::cout<<"erasing "<<v[j]<<std::endl;
-    t.erase(v[j]);
-    std::cout<<"finding "<<v[j]<<std::endl;
-    t.find(v[j]);
-  
-    std::cout<<"printing tree "<<std::endl;
-    t.print();
-    std::cout<<"inserting again "<<v[j]<<std::endl;
-    p = {v[j], v[j]};
-    t.insert(p);
-    std::cout<<"printing tree "<<std::endl;
-    t.print();
-  }
-} //erase test
-
-
-
-
 
 int main(){
 
@@ -505,7 +463,5 @@ int main(){
   find_test();
   
   balance_test();
-
-  erase_test();
 
 }

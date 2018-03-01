@@ -1,4 +1,3 @@
-# EXE_TEST = test/testlog.x test/testlog_before.x test/testlog_after.x
 CXX = c++
 CFLAGS = -std=c++11 -Wall -Wextra -fopenmp
 IFLAGS = -I include
@@ -12,12 +11,19 @@ src/btree.o:  src/btree.cc
 	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
 
 
-## NIK
 test/testlognikOMP: test/testlognikOMP.o src/btree.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
 
 
 test/testlognikOMP.o: test/testlognikOMP.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+test/testlog: test/testlog.o src/btree.o
+	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+test/testlog.o: test/testlog.cc
 	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
 
 
@@ -38,6 +44,6 @@ doc: Doxygen/Doxy
 
 
 clean:
-	@rm -rf *~ *.o src/*.o test/*.o html latex main_test test/testlognikOMP
+	@rm -rf *~ *.o src/*.o test/*.o html latex main_test test/testlognikOMP test/testlog
 
 .PHONY: clean

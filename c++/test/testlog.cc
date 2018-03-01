@@ -1,7 +1,6 @@
 #include <btree.h>
 #include <iostream>
 #include <memory>
-// #include "src/btree.cc"
 #include <cstdlib>   // rand()
 #include <vector>
 #include <sys/types.h>
@@ -27,15 +26,7 @@ void random_fill(BTree<int,int,std::less<int>>& t, unsigned int size){
 	
   t.clear();
 
-  r = size;
-  for( j=0; j<size; j++){
-    //std::cout<<r<<std::endl;
-    p = {r, r};
-    v.push_back(p);
-    r--;
-  }
-
-  /*while(v.size()<size){
+  while(v.size()<size){
     r = rand() % (size*100);
     for( j=0; j<v.size(); j++){
       if( r == v[j].first )
@@ -45,10 +36,8 @@ void random_fill(BTree<int,int,std::less<int>>& t, unsigned int size){
       p = {r, r};
       v.push_back(p);
     }
-    }*/
+  }
 
-
-  //std::cout << "v has size " << v.size() << std::endl;
   for(j=0; j<v.size(); j++)
     t.insert( v[j] );
 
@@ -97,22 +86,16 @@ int main(int argc, char * argv []){
   max=0;
 #pragma omp parallel private(k, t_start, t_end, max) reduction(+:max_sum_before)
   {
-    // std::cout<<"inside before"<<std::endl;
     omp_size = omp_get_num_threads();
-    //std::cout<<"omp_size "<<omp_size<<std::endl;
     for (k=0; k<v_find.size(); k++){
       t_start=cclock();
       t.find(v_find[k].first);
-      //BTree<int,int,std::less<int>>::Iterator i = t.find(v_find[k].first);
-      //i >>= 1;
       t_end = cclock();
       if ((t_end - t_start)>max) {
 	max = t_end - t_start;
-	//std::cout<<"partial max before "<<max<<std::endl;
       }
       // std::cout<<"time before balancing: "<<t_end - t_start<<std::endl;
     }
-    //max_sum_before += max;
     max_sum_before=max/omp_size;
 
   }
@@ -122,16 +105,13 @@ int main(int argc, char * argv []){
   max=0;
 #pragma omp parallel private(k, t_start, t_end, max) reduction(+:max_sum_after)
   {
-    //std::cout<<"inside before "<<std::endl;
     omp_size = omp_get_num_threads();
-    //std::cout<<"omp_size "<<omp_size<<std::endl;
     for (k=0; k<v_find.size(); k++){
       t_start=cclock();
       t.find(v_find[k].first);
       t_end = cclock();
       if ((t_end - t_start)>max){
 	max = t_end - t_start;
-	//std::cout<<"partial max before "<<max<<std::endl;
       }
       //std::cout<<"time after balancing: "<<t_end - t_start<<std::endl;
     }
