@@ -8,7 +8,7 @@
 
 // BNode::measure_depth()
 template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::measure_depth(int& max, int& cur){
+void BTree<TK,TV,Tcomp>::BNode::measure_depth(int& max, int& cur) {
 	cur++;
 	if( cur > max )
 		max = cur;
@@ -22,7 +22,7 @@ void BTree<TK,TV,Tcomp>::BNode::measure_depth(int& max, int& cur){
 
 // BTree::measure_depth()
 template<class TK, class TV, class Tcomp>
-int BTree<TK,TV,Tcomp>::measure_depth(){
+int BTree<TK,TV,Tcomp>::measure_depth() {
 	int current = 0, depth = 0;
 	
 	if( root == nullptr )
@@ -36,7 +36,7 @@ int BTree<TK,TV,Tcomp>::measure_depth(){
 
 // BTree::insert()
 template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){ 
+void BTree<TK,TV,Tcomp>::insert( const std::pair<TK,TV> p ){ 
   if( root == nullptr){
     root.reset(new BNode{p, this->comparison});
   }
@@ -48,7 +48,7 @@ void BTree<TK,TV,Tcomp>::insert( std::pair<TK,TV> p ){
 
 // BNode::insert node()
 template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
+void BTree<TK,TV,Tcomp>::BNode::insert_node(const std::pair<TK,TV> p){
   // key is already present
   if (!comparison(this->pair.first, p.first) && !comparison(p.first,this->pair.first) ){
     this->pair.second = p.second;
@@ -76,7 +76,7 @@ void BTree<TK,TV,Tcomp>::BNode::insert_node(std::pair<TK,TV> p){
 
 // BTree::print
 template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::print() {
+void BTree<TK,TV,Tcomp>::print() const {
   using ConstIterator = BTree<TK,TV,Tcomp>::ConstIterator;
   ConstIterator it = this->cbegin(), end = this->cend();
   #ifdef DEBUG
@@ -103,7 +103,7 @@ void BTree<TK,TV,Tcomp>::clear(){
 
 // BTree::find(TK)
 template <class TK, class TV, class Tcomp>
-class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
+class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(const TK k){
     if( root == nullptr ) 
       return Iterator{nullptr};
     	
@@ -133,7 +133,7 @@ return Iterator{pt};
 
 // BTree::cfind(TK)   const
 template <class TK, class TV, class Tcomp>
-class BTree<TK,TV,Tcomp>::ConstIterator BTree<TK,TV,Tcomp>::cfind(TK k){
+class BTree<TK,TV,Tcomp>::ConstIterator BTree<TK,TV,Tcomp>::cfind(const TK k) {
     if( root == nullptr ) 
       return ConstIterator{nullptr};
     	
@@ -210,7 +210,7 @@ void BTree<TK,TV,Tcomp>::built_tree( std::vector<std::pair<TK,TV>> &vec, int sta
 
 // BTree::isbalanced()
 template<class TK, class TV, class Tcomp>
-bool BTree<TK,TV,Tcomp>::isbalanced(){
+bool BTree<TK,TV,Tcomp>::isbalanced() const{
   if (root!=nullptr){
 	#ifdef DEBUG
 	    std::cout << "isbalanced: root!= nullptr" << std::endl;
@@ -226,7 +226,7 @@ bool BTree<TK,TV,Tcomp>::isbalanced(){
 
 // BNode::isbalanced_node()
 template<class TK, class TV, class Tcomp>
-int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
+int BTree<TK,TV,Tcomp>::BNode::isbalanced_node() const {
 
   if (this != nullptr){
     if (this->left != nullptr && this->right != nullptr){
@@ -268,12 +268,12 @@ void BTree<TK,TV,Tcomp>::erase(TK key){
 
     BNode *n = root.get();
     
-    while ( (n->left.get() && n->pair.first>key) || (n->right.get() && n->pair.first<key) ){
-      
+    while ( (n->left.get() && comparison(key,n->pair.first)) || (n->right.get() && comparison(n->pair.first,key)) ){
+      //comparions()n->pair.first>key
       //key is lower, I have to go left
-      if (n->pair.first > key){
+      if (comparison(key,n->pair.first)){
 	if ( n->left.get() ){
-	  if(   (n->left.get())->pair.first == key    ){
+	  if(  !comparison( (n->left.get())->pair.first , key ) && !comparison( key,  (n->left.get())->pair.first ) ){
 	    #ifdef DEBUG
 	    std::cout<<"found, left child, returning "<<n->pair.first<<std::endl;
 	    #endif
@@ -287,9 +287,9 @@ void BTree<TK,TV,Tcomp>::erase(TK key){
       }
 	
       //key is bigger, I have to go right
-      else if (n->pair.first < key){
+    else if (comparison(n->pair.first,key)){
 	if( n->right.get() ){
-	  if (   (n->right.get())->pair.first == key   ){
+	  if (  !comparison( (n->right.get())->pair.first , key ) && !comparison( key,  (n->right.get())->pair.first )   ){
 	    #ifdef DEBUG
 	    std::cout<<"found, right child, returning "<<n->pair.first<<std::endl;
 	    #endif
@@ -304,7 +304,7 @@ void BTree<TK,TV,Tcomp>::erase(TK key){
     }
     
     //key into left child
-    if ( n->left.get() && (n->left.get())->pair.first==key ){
+    if ( n->left.get() &&  (!comparison( (n->left.get())->pair.first , key ) && !comparison( key,  (n->left.get())->pair.first )) ){
       std::unique_ptr<BNode> left_child{(n->left.get())->left.release()};
       std::unique_ptr<BNode> right_child{(n->left.get())->right.release()};
       n->left.reset();
@@ -313,7 +313,7 @@ void BTree<TK,TV,Tcomp>::erase(TK key){
     }
     
     //key into right child
-    else if ( n->right.get() && (n->right.get())->pair.first==key ){
+    else if ( n->right.get() && (  !comparison( (n->right.get())->pair.first , key ) && !comparison( key,  (n->right.get())->pair.first )  ) ){
       std::unique_ptr<BNode> left_child{(n->right.get())->left.release()};
       std::unique_ptr<BNode> right_child{(n->right.get())->right.release()};
       n->right.reset();
@@ -321,7 +321,7 @@ void BTree<TK,TV,Tcomp>::erase(TK key){
       insert_subtree(right_child);
     }
     //key is in root node
-    else if ( n->pair.first==key ) {
+    else if ( !comparison(n->pair.first,key) && !comparison(key,n->pair.first) ) {
       #ifdef DEBUG
       std::cout<<"is root node"<<std::endl;
       #endif

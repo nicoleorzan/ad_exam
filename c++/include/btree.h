@@ -55,11 +55,11 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
     /**
      * Bnode function for inserting a new Node
      */		
-    void insert_node( std::pair<TK,TV> p );
+    void insert_node( const std::pair<TK,TV> p );
     /**
      * Bnode utility function to check if the tree is balanced
      */
-    int isbalanced_node();
+    int isbalanced_node() const;
     
     /**
      * BNode function that recursively insert the node of the tree in another tree passed as reference
@@ -164,15 +164,15 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   }
 		
   /**  BTree function for inserting a new Node */
-  void insert( std::pair<TK,TV> p );
+  void insert( const std::pair<TK,TV> p );
   /** BTree function to print the tree using the Constiterator  */
-  void print();
+  void print() const;
   /** BTree function to clear the tree  */
   void clear();
   /** BTree function to balance the tree  */
   void balance();
   /** BTree function to check if the tree is balanced  */
-  bool isbalanced();
+  bool isbalanced() const;
   /** BTree function to erase a Node with the given key  */
   void erase(TK key);
   /** BTree function to measure the max depth of the tree  */
@@ -211,7 +211,7 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
    * Iterator find function, which returns an iterator to the 
    * node with the given key. If the node is not found returns end function.
    */
-  Iterator find(TK);
+  Iterator find(const TK);
   
   /** Like the Iterator class but cannot modify what it points to 
    *  this class is derived by Iterator	
@@ -219,7 +219,7 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   class ConstIterator;
   
   /** Like find but returns a ConstIterator*/
-  ConstIterator cfind(TK);
+  ConstIterator cfind(const TK);
   
   /** ConstIterator cbegin function, which returns the smallest key value */
   ConstIterator cbegin() const {
