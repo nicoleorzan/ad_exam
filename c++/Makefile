@@ -1,50 +1,49 @@
-EXE = main_int.x 
-EXE_TEST = test/testlog.x test/testlog_before.x test/testlog_after.x
 CXX = c++
-CFLAGS = -g -std=c++11 -Wall -Wextra
+CFLAGS = -std=c++11 -Wall -Wextra -fopenmp
 IFLAGS = -I include
-# DFLAGS = -D DEBUG
-SRC = src/btree.cc
+DFLAGS = -D DEBUG
 
 
-all: $(EXE) $(EXE_TEST) 
+all: main_test test/testlognikOMP $(EXE_TEST)
 
-testlognik: testlognik.o src/btree.o
+
+src/btree.o:  src/btree.cc 
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+test/testlognikOMP: test/testlognikOMP.o src/btree.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
 
-testlognikOMP: testlognikOMP.o src/btree.o
-	$(CXX) -fopenmp -o $@ $^ $(CFLAGS) $(IFLAGS) -O0
 
-main_int: main_int.o src/btree.o
+test/testlognikOMP.o: test/testlognikOMP.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+test/testlog: test/testlog.o src/btree.o
+	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+test/testlog.o: test/testlog.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
+
+
+main_test: main_test.o src/btree-d.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
 
-#%.x: %.o src/btree.o
-#	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS)
 
-%.x: %.o src/btree.o
-	$(CXX) -o $@ $^ $(CFLAGS) $(IFLAGS) -fopenmp -O0
+main_test.o: main_test.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
+
+
+src/btree-d.o: src/btree.cc
+	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
+
 
 doc: Doxygen/Doxy
 	doxygen $^
 
-src/btree.o:  $(SRC) 
-	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
-
-main_int.o: main_int.cc
-	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
-
-testlognik.o: testlognik.cc
-	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS)
-
-testlognikOMP.o: testlognikOMP.cc
-	$(CXX) -c -fopenmp -o $@ $^ $(CFLAGS) $(IFLAGS) $(DFLAGS) -O0
-#%.o: %.cc
-#	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS)
-
-%.o: %.cc
-	$(CXX) -c -o $@ $^ $(CFLAGS) $(IFLAGS) -fopenmp -O0
 
 clean:
-	@rm -rf *~ *.o src/*.o html latex $(EXE) $(EXE_TEST)
+	@rm -rf *~ *.o src/*.o test/*.o html latex main_test test/testlognikOMP test/testlog
 
 .PHONY: clean

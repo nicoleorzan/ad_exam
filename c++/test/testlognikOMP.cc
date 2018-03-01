@@ -14,11 +14,7 @@ std::string random_str(int size){
 std::string pool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 std::string res;
 res.resize(size);
-
 int i;
-
-// std::cout << "randomstr"; 
-
 for(i=0; i<size; i++)
 	res[i] = pool[ rand() % pool.length()];
 
@@ -38,7 +34,6 @@ double cclock(){
 
 int pow2(int n){
 int res = 1;
-
 while(n--)
 	res*=2;
 	
@@ -49,7 +44,7 @@ return res;
 int main(){
 
   double t_start, t_end, mean_time_before, mean_time_after, t_max;
-  int i, e, n, rank, tree_size, thread_size, size, depth_before, depth_after;
+  int i, e, rank, tree_size, thread_size, size, depth_before, depth_after;
   BTree<std::string,int,std::less<std::string>> t;
   
   // unsigned int r, j;

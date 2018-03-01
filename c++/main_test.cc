@@ -43,7 +43,7 @@ return res;
 // constructor test
 void constructor_test(){
 
-  std::cout << "####################################################" << std::endl;
+  std::cout << "\n\n####################################################" << std::endl;
   std::cout << "\nCONSTRUCTOR TEST:" << std::endl;
   std::cout << "test the constructors, destructor, insert, print and clear\n" << std::endl;
   std::cout << "####################################################" << std::endl;
@@ -57,8 +57,8 @@ void constructor_test(){
   {
     std::cout << "\n\nTEST WITH INT\n" << std::endl;
     std::pair<int,int> p{1,1};
-    std::cout << "BTree<int,int,std::less<int>> t1; calls:" << std::endl;    
-    BTree<int,int,std::less<int>> t1;
+    std::cout << "BTree<int,int> t1; calls:" << std::endl;    
+    BTree<int,int> t1;
     
     std::cout << "\nt1.print();" << std::endl;
     t1.print();
@@ -85,7 +85,7 @@ void constructor_test(){
     std::cout << "\nt2.print()" << std::endl;
     t2.print();
     p = {2,2};
-    std::cout << "\nt2.insert(p);" << std::endl;
+    std::cout << "\nt2.insert(p={2,2});" << std::endl;
     t2.insert(p);
     std::cout << "\nt2.print()" << std::endl;
     t2.print();
@@ -114,14 +114,14 @@ void constructor_test(){
   {
     std::cout << "\n\nTEST WITH CHARS\n" << std::endl;
     unsigned int i;
-    std::vector<char> c{'c','a','e','b','f','k','p','j','y','n','d','i','m','n','l','s','g','o','q','h','r','t','z','u','x','w','v'};
+    std::vector<char> c{'c','a','e','b','f','k','p','j','y','n','d','i','m','l','s','g','o','q','h','r','t','z','u','x','w','v'};
     std::cout << "BTree<char, double, std::less<char>> t;\n" << std::endl;
     BTree<char, double, std::less<char>> t;
     std::pair<char,double> p;
     std::cout << "inserting the alphabet in this order\n" << std::endl;
     for(i=0; i<c.size(); i++){
     	std::cout << c[i] << " ";
-    	p = {c[i], 3.14};
+    	p = {c[i], (double) i};
     	t.insert(p);
     }
     std::cout << "\n\nt.print()" << std::endl;
@@ -130,12 +130,13 @@ void constructor_test(){
   } // test char
   
   {
+    BTree<std::string, std::string, std::less<std::string>> t;
     std::cout << "\n\nTEST WITH STRINGS\n" << std::endl;
     std::cout << "inserting:" << std::endl;
     std::cout << "{this,is,the,string,test,for,the,class,btree,for,the,advanced, programming, exam}" << std::endl;
     std::vector<std::string> v{"this","is","the","string","test","for","the","class","btree","for","the",\
     				"advanced", "programming", "exam"};
-    BTree<std::string, std::string, std::less<std::string>> t;
+    
     std::pair<std::string,std::string> p;
     unsigned int i;
     for(i=0; i<v.size(); i++){
@@ -144,11 +145,9 @@ void constructor_test(){
     }
     std::cout << "\nt.print()" << std::endl;
     t.print();
+    std::cout << "\n" << std::endl;
   
   } // test string
-  
-  std::cout << "\n\n\nend of constructor test" << std::endl;
-  std::cout << "####################################################" << std::endl;
 	
 } // constructor_test
 
@@ -159,7 +158,7 @@ void constructor_test(){
 // copy move test
 void copymove_test(){
 
-	std::cout << "####################################################" << std::endl;
+	std::cout << "\n\n####################################################" << std::endl;
 	std::cout << "\nCOPY MOVE TEST:" << std::endl;
 	std::cout << "test copy and move constructor and assignment\n" << std::endl;
 	std::cout << "####################################################" << std::endl;
@@ -248,7 +247,7 @@ void copymove_test(){
 // balance test
 void balance_test(){
   
-  std::cout << "####################################################" << std::endl;
+  std::cout << "\n\n####################################################" << std::endl;
   std::cout << "\nBALANCE TREE TESTING:\n" << std::endl;
   std::cout << "####################################################" << std::endl;
 
@@ -374,7 +373,7 @@ void balance_test(){
 // find test
 void find_test(){
 
-	std::cout << "####################################################" << std::endl;
+	std::cout << "\n\n####################################################" << std::endl;
 	std::cout << "\nFIND TEST:" << std::endl;
 	std::cout << "test the find function and other features of Iterator\n" << std::endl;
 	std::cout << "####################################################" << std::endl;
@@ -473,28 +472,22 @@ void erase_test(){
   std::cout<<"---PRINTING INITIAL TREE-- "<<std::endl;
   t.print();
   std::cout<<"--------- "<<std::endl;
-  
-  j = 1;
+
   for(j=0; j< v.size(); j++){
+    std::cout<<"--------- "<<std::endl;
     std::cout<<"balancing tree "<<std::endl;
     t.balance();
     std::cout<<"erasing "<<v[j]<<std::endl;
     t.erase(v[j]);
-    std::cout<<"finding "<<v[j]<<std::endl;
-    t.find(v[j]);
-  
-    std::cout<<"printing tree "<<std::endl;
+    std::cout<<"printing tree with erased "<<v[j]<<std::endl;
     t.print();
-    std::cout<<"inserting again "<<v[j]<<std::endl;
+    std::cout<<"inserting again: "<<v[j]<<std::endl;
     p = {v[j], v[j]};
     t.insert(p);
-    std::cout<<"printing tree "<<std::endl;
+    std::cout<<"printing recomposed tree, must be the original "<<std::endl;
     t.print();
-  }
+    }
 } //erase test
-
-
-
 
 
 int main(){

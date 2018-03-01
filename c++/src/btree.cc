@@ -97,26 +97,8 @@ void BTree<TK,TV,Tcomp>::clear(){
     	#endif
   	return;
   }
-  //root->clear_node();
-  //root.reset(nullptr);
   root.reset();
 }
-
-
-// BNode::clear_node()
-/*template <class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::clear_node(){
-
-	if( this->left != nullptr ){
-		this->left->clear_node();
-		}
-	if( this->right != nullptr ){
-		this->right->clear_node();
-		}
-	
-	this->left.reset(nullptr);
-	this->right.reset(nullptr);
-	}*/
 
 
 // BTree::find(TK)
@@ -134,9 +116,6 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
 	}
 	else{
 	  return Iterator{nullptr};
-#ifdef DEBUG
-	  std::cout << "key not found" << std::endl;
-#endif
 	}
       }
       else {
@@ -145,15 +124,9 @@ class BTree<TK,TV,Tcomp>::Iterator BTree<TK,TV,Tcomp>::find(TK k){
 	}
 	else{
 	  return Iterator{nullptr};
-#ifdef DEBUG
-	  std::cout << "key not found" << std::endl;
-#endif
 	}
       }
     }
-#ifdef DEBUG
-    std::cout << "key found" << std::endl;
-#endif
 return Iterator{pt};  
 }
 
@@ -284,105 +257,95 @@ int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
  
 }
 
+struct Notfound{};
 
-// BTree::erase()
+struct Unknown_except{};
+
+
 template<class TK, class TV, class Tcomp>
 void BTree<TK,TV,Tcomp>::erase(TK key){
-  if (root!=nullptr)
-     this->root->find_node(key);
-}
+  if (root!=nullptr){
 
-
-template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::find_node(TK key){
-  if (this!=nullptr){
-    // if (this->left->pair.first==key) this->erase_node(0);
-    //else if (this->right->pair.first==key) this->erase_node(1);
-    if ( !comparison(this->pair.first, key) && !comparison(key,this->pair.first)  )  this->erase_node();
-    //else if (this->pair.first>key) this->left->find_node(key);
-    //else this->right->find_node(key);
-    else if (comparison(key,this->pair.first) ) this->left->find_node(key);
-    else this->right->find_node(key);
-  }
-  return;
-}
-
-template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::erase_node(){
-
-  /* if (b==0){
-    if (this->left->left==nullptr && this->left->right==nullptr) this->left.reset(nullptr);
-    if (this->left->left!=nullptr) this->left.reset(this->left->left);
-    if (this->left->right!=nullptr) this->right.reset(this->left->right);
-  }
-  else if (b==1){
-    if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
-    if (this->right->left!=nullptr) this->left.reset(this->right->left);
-    if (this->right->right!=nullptr) this->right.reset(this->right->right);
-    }*/
-    //this->left.reset(nullptr);
-  
-    //node has no childs
-   if (this->left==nullptr && this->right == nullptr){
-    std::cout<<"no childs"<<std::endl;
-    //if(this->next!=nullptr)
-    //std::cout<<"printing next "<<this->next->pair.first<<" "<<this->next->pair.second<<std::endl;
-    }
-   
-   //node has only left child
-   if (this->left!= nullptr && this->right==nullptr){
-     this->pair.first=this->left->pair.first;
-     this->pair.second=this->left->pair.second;
-      if (this->left->left==nullptr && this->left->right==nullptr) this->left.reset(nullptr);
-      else this->left->erase_node();
-    }
-    //node has only right child
-    if (this->left== nullptr && this->right!=nullptr){
-      this->pair.first=this->right->pair.first;
-      this->pair.second=this->right->pair.second;
-      this->right->erase_node();
-      if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
-      else this->right->erase_node();
-    }
-    //node has both childs
-    if (this->left!= nullptr && this->right!=nullptr){
-      this->pair.first=this->right->pair.first;
-      this->pair.second=this->right->pair.second;
-      //std::cout<<"here "<<this->pair.first<<" "<<this->pair.second<<std::endl;
-      if (this->right->left==nullptr && this->right->right==nullptr) this->right.reset(nullptr);
-      else this->right->erase_node();
-      // this->right->erase_node();
+    BNode *n = root.get();
+    
+    while ( (n->left.get() && n->pair.first>key) || (n->right.get() && n->pair.first<key) ){
+      
+      //key is lower, I have to go left
+      if (n->pair.first > key){
+	if ( n->left.get() ){
+	  if(   (n->left.get())->pair.first == key    ){
+	    #ifdef DEBUG
+	    std::cout<<"found, left child, returning "<<n->pair.first<<std::endl;
+	    #endif
+	    break;
+	  }
+	  else n=n->left.get();
+	}
+	else {
+	  throw Notfound{};
+	}
       }
-
-  return;
-
-}
-
-
-template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::diagram(){
-  if (root!=nullptr)
-    this->root->diagram(6);  
-}
-
-template<class TK, class TV, class Tcomp>
-void BTree<TK,TV,Tcomp>::BNode::diagram(int indent){
-  if(this != nullptr) {
-    if (indent) {
-      std::cout << std::setw(indent) << ' ';
-      std::cout<< this->pair.first<<std::endl;
+	
+      //key is bigger, I have to go right
+      else if (n->pair.first < key){
+	if( n->right.get() ){
+	  if (   (n->right.get())->pair.first == key   ){
+	    #ifdef DEBUG
+	    std::cout<<"found, right child, returning "<<n->pair.first<<std::endl;
+	    #endif
+	    break;
+	  }
+	  else n=n->right.get();
+	}
+	else {
+	  throw Notfound{};
+	}
+      }
     }
-    if (this->left) {
-      this->left->diagram(indent - 2);
+    
+    //key into left child
+    if ( n->left.get() && (n->left.get())->pair.first==key ){
+      std::unique_ptr<BNode> left_child{(n->left.get())->left.release()};
+      std::unique_ptr<BNode> right_child{(n->left.get())->right.release()};
+      n->left.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
     }
-    if (this->right) {
-      this->right->diagram(indent + 2);
+    
+    //key into right child
+    else if ( n->right.get() && (n->right.get())->pair.first==key ){
+      std::unique_ptr<BNode> left_child{(n->right.get())->left.release()};
+      std::unique_ptr<BNode> right_child{(n->right.get())->right.release()};
+      n->right.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
+    }
+    //key is in root node
+    else if ( n->pair.first==key ) {
+      #ifdef DEBUG
+      std::cout<<"is root node"<<std::endl;
+      #endif
+      std::unique_ptr<BNode> left_child{(n)->left.release()};
+      std::unique_ptr<BNode> right_child{(n)->right.release()};
+      root.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
+    }
+    else {
+      throw Unknown_except{};
     }
   }
+} //erase
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::insert_subtree(std::unique_ptr<BNode>& n){
+  if (this!= nullptr && n!= nullptr){
+    //std::pair<TK,TV> p{};
+    if (n->left) insert_subtree(n->left);
+    insert(n->pair);
+    if (n->right) insert_subtree(n->right);
+    }
 }
-
-
-
 
 
 //
