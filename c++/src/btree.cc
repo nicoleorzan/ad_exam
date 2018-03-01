@@ -257,6 +257,97 @@ int BTree<TK,TV,Tcomp>::BNode::isbalanced_node(){
  
 }
 
+struct Notfound{};
+
+struct Unknown_except{};
+
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::erase(TK key){
+  if (root!=nullptr){
+
+    BNode *n = root.get();
+    
+    while ( (n->left.get() && n->pair.first>key) || (n->right.get() && n->pair.first<key) ){
+      
+      //key is lower, I have to go left
+      if (n->pair.first > key){
+	if ( n->left.get() ){
+	  if(   (n->left.get())->pair.first == key    ){
+	    #ifdef DEBUG
+	    std::cout<<"found, left child, returning "<<n->pair.first<<std::endl;
+	    #endif
+	    break;
+	  }
+	  else n=n->left.get();
+	}
+	else {
+	  throw Notfound{};
+	}
+      }
+	
+      //key is bigger, I have to go right
+      else if (n->pair.first < key){
+	if( n->right.get() ){
+	  if (   (n->right.get())->pair.first == key   ){
+	    #ifdef DEBUG
+	    std::cout<<"found, right child, returning "<<n->pair.first<<std::endl;
+	    #endif
+	    break;
+	  }
+	  else n=n->right.get();
+	}
+	else {
+	  throw Notfound{};
+	}
+      }
+    }
+    
+    //key into left child
+    if ( n->left.get() && (n->left.get())->pair.first==key ){
+      std::unique_ptr<BNode> left_child{(n->left.get())->left.release()};
+      std::unique_ptr<BNode> right_child{(n->left.get())->right.release()};
+      n->left.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
+    }
+    
+    //key into right child
+    else if ( n->right.get() && (n->right.get())->pair.first==key ){
+      std::unique_ptr<BNode> left_child{(n->right.get())->left.release()};
+      std::unique_ptr<BNode> right_child{(n->right.get())->right.release()};
+      n->right.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
+    }
+    //key is in root node
+    else if ( n->pair.first==key ) {
+      #ifdef DEBUG
+      std::cout<<"is root node"<<std::endl;
+      #endif
+      std::unique_ptr<BNode> left_child{(n)->left.release()};
+      std::unique_ptr<BNode> right_child{(n)->right.release()};
+      root.reset();
+      insert_subtree(left_child);
+      insert_subtree(right_child);
+    }
+    else {
+      throw Unknown_except{};
+    }
+  }
+} //erase
+
+template<class TK, class TV, class Tcomp>
+void BTree<TK,TV,Tcomp>::insert_subtree(std::unique_ptr<BNode>& n){
+  if (this!= nullptr && n!= nullptr){
+    //std::pair<TK,TV> p{};
+    if (n->left) insert_subtree(n->left);
+    insert(n->pair);
+    if (n->right) insert_subtree(n->right);
+    }
+}
+
+
 //
 // explicit templates
 //

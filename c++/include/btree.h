@@ -92,6 +92,8 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
 
    /** BTree private function to built the tree using a given vector of pairs  */
   void built_tree(std::vector<std::pair<TK,TV>> &vec, int start, int end);
+  /** BTree private function to built a subtree, used by erase function  */
+  void insert_subtree(std::unique_ptr<BNode>& n);
 
   
  public:
@@ -163,6 +165,8 @@ template<class TK, class TV, class Tcomp=std::less<TK>>
   void balance();
   /** BTree function to check if the tree is balanced  */
   bool isbalanced();
+  /** BTree function to erase a Node with the given key  */
+  void erase(TK key);
   /** BTree function to measure the max depth of the tree  */
   int measure_depth();
 
